@@ -11,9 +11,29 @@ framework behind the Zed editor.
 
 ## Download
 
-Windows builds are attached to each [release](https://github.com/Josuesp1620/crisol/releases):
-unzip `crisol-vX.Y.Z-windows-x64.zip` and run `crisol.exe`. The zip also holds
-`crisol-cli.exe` and `customer-form.exe`, the example form built from generated code.
+Download `crisol-vX.Y.Z-setup.exe` from the latest
+[release](https://github.com/Josuesp1620/crisol/releases) and run it. It installs Crisol with
+Start menu and desktop shortcuts, and opens `.crisol` and `.crisolproj` files with a
+double-click. A portable zip is attached too.
+
+To build and run your projects from Crisol, install Rust from [rustup.rs](https://rustup.rs).
+
+## Projects
+
+File › New project creates a Cargo project ready to run:
+
+```
+billing/
+├── billing.crisolproj        the project: name and forms
+├── Cargo.toml
+└── src/
+    ├── main.rs               opens the startup form
+    └── forms/
+        ├── mod.rs            kept current by Crisol
+        ├── main_form.crisol  the form you design
+        ├── main_form.generated.rs   rewritten on every save
+        └── main_form_events.rs      your code, only ever extended
+```
 
 ## The designer
 
@@ -28,7 +48,10 @@ unzip `crisol-vX.Y.Z-windows-x64.zip` and run `crisol.exe`. The zip also holds
 - **Run (F5)** opens the form with working controls; **Generate code (Ctrl+Shift+B)** writes
   the Rust files next to the `.crisol` file.
 
-Shortcuts: Ctrl+N new, Ctrl+O open, Ctrl+S save, Ctrl+Z undo, Ctrl+Y redo, Del delete.
+Shortcuts: Ctrl+Shift+N new project, Ctrl+O open, Ctrl+S save, Ctrl+Shift+S save all,
+Ctrl+Shift+A add form, F7 view code, F5 preview, Ctrl+F5 run project, Ctrl+Shift+B build,
+Ctrl+Z / Ctrl+Y undo and redo, Ctrl+C / Ctrl+V / Ctrl+D copy, paste and duplicate, arrows
+to nudge, Del delete, Esc select the container, Ctrl+Shift+P command palette.
 
 ## How it works
 
