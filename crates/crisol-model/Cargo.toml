@@ -1,0 +1,17 @@
+[package]
+name = "crisol-model"
+description = "The Crisol form document: nodes, properties, placement, events and its canonical file format."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+[lints]
+workspace = true

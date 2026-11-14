@@ -1,0 +1,14 @@
+use serde::{Deserialize, Serialize};
+
+/// A width and height in logical pixels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub struct Size {
+    pub width: i32,
+    pub height: i32,
+}
+
+impl Size {
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+}

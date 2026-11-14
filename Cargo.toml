@@ -1,0 +1,49 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/crisol-model",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+license = "MIT"
+authors = ["Josuesp1620"]
+repository = "https://github.com/Josuesp1620/crisol"
+
+[workspace.dependencies]
+crisol-model = { path = "crates/crisol-model" }
+crisol-catalog = { path = "crates/crisol-catalog" }
+crisol-commands = { path = "crates/crisol-commands" }
+crisol-engine = { path = "crates/crisol-engine" }
+crisol-codegen = { path = "crates/crisol-codegen" }
+crisol-ui = { path = "crates/crisol-ui" }
+crisol-render = { path = "crates/crisol-render" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+# GPUI is pinned to one Zed revision: crates.io only has a release a year behind main.
+gpui = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6" }
+gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+return_self_not_must_use = "allow"
+# Every fallible function returns the single error type of its crate, documented there.
+missing_errors_doc = "allow"
+
+# Zed patches these crates for GPUI; the same fixes apply when GPUI is used from here.
+[patch.crates-io]
+async-task = { git = "https://github.com/smol-rs/async-task", rev = "41fd3359c75e221bd8b187a8ee361aa309c1714c" }
+calloop = { git = "https://github.com/zed-industries/calloop", rev = "3759371fee14c40066d64777e2a36b6ffcc22590" }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
