@@ -54,7 +54,6 @@ impl RenderOnce for ComboBoxAppearance {
             .items_center()
             .justify_between()
             .gap(px(6.))
-            .w_full()
             .min_w(px(80.))
             .h(theme.metrics.control_height)
             .px(theme.metrics.control_padding)

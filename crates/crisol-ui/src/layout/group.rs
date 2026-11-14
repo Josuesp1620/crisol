@@ -47,7 +47,6 @@ impl RenderOnce for Group {
         div()
             .flex()
             .flex_col()
-            .w_full()
             .border_1()
             .border_color(theme.colors.line)
             .rounded(theme.metrics.panel_radius)

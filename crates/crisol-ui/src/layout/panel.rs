@@ -62,11 +62,7 @@ impl Panel {
 
 impl RenderOnce for Panel {
     fn render(mut self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let mut panel = div()
-            .relative()
-            .w_full()
-            .min_w(px(self.width))
-            .h(px(self.height));
+        let mut panel = div().relative().min_w(px(self.width)).h(px(self.height));
         for slot in std::mem::take(&mut self.slots) {
             let holder = self.vertical(&slot, self.horizontal(&slot, div().absolute().flex()));
             panel = panel.child(holder.child(slot.element));

@@ -2,6 +2,7 @@ use crisol_catalog::widgets::FormSchema;
 use crisol_model::document::Node;
 use crisol_model::identity::NodeId;
 use crisol_model::layout::{Edge, Placement, SizeMode};
+use crisol_model::properties::PropertyValue;
 
 use super::generation_context::GenerationContext;
 use super::stateful_kind::StatefulKind;
@@ -152,9 +153,7 @@ impl<'context> ElementWriter<'context> {
         writer.indent();
         for child_id in node.children() {
             let child = self.node(*child_id);
-            if !PropertyReader::new(child, self.context.catalog.schema(child.kind.as_str()))
-                .boolean("visible")
-            {
+            if child.properties.get("visible") == Some(&PropertyValue::Boolean(false)) {
                 continue;
             }
             writer.line(&format!(".{}", Self::slot_call(&child.placement)));

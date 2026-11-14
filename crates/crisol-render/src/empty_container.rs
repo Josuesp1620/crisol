@@ -20,7 +20,6 @@ impl RenderOnce for EmptyContainer {
             .flex()
             .items_center()
             .justify_center()
-            .w_full()
             .min_w(px(160.))
             .h(px(56.))
             .border_1()

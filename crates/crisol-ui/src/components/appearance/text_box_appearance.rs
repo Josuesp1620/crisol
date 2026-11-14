@@ -38,7 +38,6 @@ impl RenderOnce for TextBoxAppearance {
         div()
             .flex()
             .items_center()
-            .w_full()
             .min_w(px(60.))
             .h(theme.metrics.control_height)
             .px(theme.metrics.control_padding)

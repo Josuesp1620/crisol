@@ -79,7 +79,7 @@ impl RenderOnce for Stack {
         let mut container = div()
             .flex()
             .when(horizontal, |container| container.flex_row().items_center())
-            .when(!horizontal, |container| container.flex_col().items_start())
+            .when(!horizontal, Styled::flex_col)
             .gap(px(self.gap))
             .p(px(self.padding))
             .when(self.fills_window, |container| {
@@ -96,11 +96,8 @@ impl RenderOnce for Stack {
             StackAlignment::End => container.justify_end(),
             StackAlignment::SpaceBetween => container.justify_between(),
         };
-        if !horizontal {
-            container = container.w_full();
-        }
         for slot in self.slots {
-            let mut wrapper = div().flex();
+            let mut wrapper = div().flex().flex_col();
             wrapper = slot.width.apply_width(wrapper, horizontal);
             wrapper = slot.height.apply_height(wrapper, !horizontal);
             container = container.child(wrapper.child(slot.element));

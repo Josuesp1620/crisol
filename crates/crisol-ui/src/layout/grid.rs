@@ -75,7 +75,7 @@ impl Grid {
     }
 
     fn column_box(&self, column: u32, span: u32) -> gpui::Div {
-        let mut cell = div().flex().items_center().min_w_0();
+        let mut cell = div().flex().flex_col().justify_center().min_w_0();
         if column == 0 && self.first_column_width > 0. && span == 1 {
             cell = cell.w(px(self.first_column_width)).flex_none();
         } else {
@@ -105,22 +105,17 @@ impl RenderOnce for Grid {
         let mut grid = div()
             .flex()
             .flex_col()
-            .w_full()
             .gap(px(self.row_gap))
             .p(px(self.padding));
         for row in 0..rows {
-            let mut line = div()
-                .flex()
-                .items_center()
-                .w_full()
-                .gap(px(self.column_gap));
+            let mut line = div().flex().items_center().gap(px(self.column_gap));
             let mut column = 0;
             while column < self.columns {
                 let position = (row * self.columns + column) as usize;
                 let (span, content): (u32, Option<AnyElement>) = match cells[position].take() {
                     Some(slot) => {
                         let span = slot.column_span.min(self.columns - column);
-                        let holder = slot.width.apply_width(div().flex(), false);
+                        let holder = slot.width.apply_width(div().flex().flex_col(), false);
                         (span, Some(holder.child(slot.element).into_any_element()))
                     }
                     None => (1, None),

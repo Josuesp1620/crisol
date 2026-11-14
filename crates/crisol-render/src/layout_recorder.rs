@@ -33,7 +33,7 @@ impl LayoutRecorder {
         div()
             .relative()
             .flex()
-            .flex_1()
+            .flex_col()
             .child(element)
             .child(probe)
             .into_any_element()

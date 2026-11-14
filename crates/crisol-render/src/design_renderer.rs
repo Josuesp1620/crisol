@@ -6,6 +6,7 @@ use crisol_catalog::{PropertyReader, WidgetCatalog};
 use crisol_model::document::{FormDocument, Node};
 use crisol_model::identity::NodeId;
 use crisol_model::layout::{Edge, Placement};
+use crisol_model::properties::PropertyValue;
 use crisol_ui::components::appearance::{
     CheckBoxAppearance, ComboBoxAppearance, RadioButtonAppearance, TextBoxAppearance,
 };
@@ -54,11 +55,12 @@ impl<'document> DesignRenderer<'document> {
             return gpui::Empty.into_any_element();
         };
         let reader = PropertyReader::new(node, self.catalog.schema(node.kind.as_str()));
+        let hidden = node.properties.get("visible") == Some(&PropertyValue::Boolean(false));
         let mut element = match self.live.and_then(|live| live.view_for(id)) {
             Some(view) => view.clone().into_any_element(),
             None => self.control_for(node, &reader),
         };
-        if !reader.boolean("visible") {
+        if hidden {
             element = gpui::div().opacity(0.4).child(element).into_any_element();
         }
         self.recorder.measure(id, element)

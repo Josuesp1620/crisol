@@ -451,7 +451,6 @@ impl Render for TextBox {
             .track_focus(&self.focus_handle)
             .flex()
             .items_center()
-            .w_full()
             .min_w(gpui::px(60.))
             .h(theme.metrics.control_height)
             .px(theme.metrics.control_padding)

@@ -149,7 +149,6 @@ impl Render for ComboBox {
             .disabled(self.disabled);
         div()
             .relative()
-            .w_full()
             .min_w(px(80.))
             .child(
                 div()
