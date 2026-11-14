@@ -3,6 +3,7 @@
 
 pub mod arranging;
 pub mod dragging;
+pub mod editing;
 pub mod engine_settings;
 pub mod layout;
 pub mod selection;
