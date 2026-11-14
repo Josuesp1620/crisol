@@ -22,8 +22,10 @@ impl CustomerWindow {
                     }),
                     ..WindowOptions::default()
                 };
-                cx.open_window(options, |window, cx| cx.new(|cx| CustomerForm::new(window, cx)))
-                    .expect("the window opens");
+                cx.open_window(options, |window, cx| {
+                    cx.new(|cx| CustomerForm::new(window, cx))
+                })
+                .expect("the window opens");
             });
     }
 }

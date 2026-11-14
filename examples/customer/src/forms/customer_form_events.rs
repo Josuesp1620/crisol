@@ -4,7 +4,12 @@ use super::customer_form::{CustomerForm, CustomerFormEvents};
 
 impl CustomerFormEvents for CustomerForm {
     fn kind_changed(&mut self, _window: &mut Window, cx: &mut Context<Self>) {
-        let kind = self.cmb_kind.read(cx).selected_text().unwrap_or_default().to_owned();
+        let kind = self
+            .cmb_kind
+            .read(cx)
+            .selected_text()
+            .unwrap_or_default()
+            .to_owned();
         println!("Kind: {kind}");
     }
 
