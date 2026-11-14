@@ -34,6 +34,16 @@ impl LayoutRecorder {
 
     /// Wraps `element` so its bounds are recorded for `node` when it is laid out.
     pub fn measure(&self, node: NodeId, element: AnyElement) -> AnyElement {
+        self.probe(node, element).into_any_element()
+    }
+
+    /// Like `measure`, but the element grows to fill its container: used for the form root,
+    /// so it covers the whole designed window.
+    pub fn measure_filling(&self, node: NodeId, element: AnyElement) -> AnyElement {
+        self.probe(node, element).flex_1().into_any_element()
+    }
+
+    fn probe(&self, node: NodeId, element: AnyElement) -> gpui::Div {
         let snapshot = self.snapshot.clone();
         let probe = canvas(
             move |bounds, _window, _cx| snapshot.borrow_mut().record(node, Self::rect_of(bounds)),
@@ -47,7 +57,6 @@ impl LayoutRecorder {
             .flex_col()
             .child(element)
             .child(probe)
-            .into_any_element()
     }
 
     #[allow(

@@ -50,6 +50,14 @@ impl<'document> DesignRenderer<'document> {
         self.element_for(self.document.root_id())
     }
 
+    fn wrap(&self, id: NodeId, element: AnyElement) -> AnyElement {
+        if id == self.document.root_id() {
+            self.recorder.measure_filling(id, element)
+        } else {
+            self.recorder.measure(id, element)
+        }
+    }
+
     fn element_for(&self, id: NodeId) -> AnyElement {
         let Ok(node) = self.document.node(id) else {
             return gpui::Empty.into_any_element();
@@ -63,7 +71,7 @@ impl<'document> DesignRenderer<'document> {
         if hidden {
             element = gpui::div().opacity(0.4).child(element).into_any_element();
         }
-        self.recorder.measure(id, element)
+        self.wrap(id, element)
     }
 
     fn control_for(&self, node: &Node, reader: &PropertyReader<'_>) -> AnyElement {
