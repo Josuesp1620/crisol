@@ -1,0 +1,18 @@
+[package]
+name = "crisol-render"
+description = "Draws a Crisol document with crisol-ui components and reports where each control landed."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+crisol-model.workspace = true
+crisol-catalog.workspace = true
+crisol-engine.workspace = true
+crisol-ui.workspace = true
+gpui.workspace = true
+
+[lints]
+workspace = true

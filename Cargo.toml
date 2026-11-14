@@ -7,6 +7,7 @@ members = [
     "crates/crisol-engine",
     "crates/crisol-codegen",
     "crates/crisol-ui",
+    "crates/crisol-render",
     "apps/crisol-cli",
     "examples/customer",
 ]

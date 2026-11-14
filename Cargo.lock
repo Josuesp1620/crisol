@@ -863,6 +863,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "crisol-render"
+version = "0.1.0"
+dependencies = [
+ "crisol-catalog",
+ "crisol-engine",
+ "crisol-model",
+ "crisol-ui",
+ "gpui",
+]
+
+[[package]]
 name = "crisol-ui"
 version = "0.1.0"
 dependencies = [
