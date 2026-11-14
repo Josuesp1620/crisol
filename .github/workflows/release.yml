@@ -36,5 +36,10 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}"
-          $prerelease = if ($version -match "-") { "--prerelease" } else { "" }
-          gh release create $version "crisol-$version-windows-x64.zip" --title "Crisol $version" --notes-file CHANGELOG.md $prerelease
+          $number = [regex]::Escape($version.TrimStart("v"))
+          $changelog = Get-Content CHANGELOG.md -Raw
+          $section = [regex]::Match($changelog, "(?s)## \[$number\][^\n]*\n(.*?)(?=\n## \[|$)")
+          Set-Content release-notes.md $section.Groups[1].Value.Trim()
+          $arguments = @($version, "crisol-$version-windows-x64.zip", "--title", "Crisol $version", "--notes-file", "release-notes.md")
+          if ($version -match "-") { $arguments += "--prerelease" }
+          gh release create @arguments
