@@ -7,7 +7,7 @@ WINDOWS_TARGET := x86_64-pc-windows-msvc
 CORE_PACKAGES := -p crisol-model -p crisol-catalog -p crisol-commands -p crisol-engine -p crisol-codegen -p crisol-cli
 BUILD_JOBS ?= 8
 
-.PHONY: help images screenshots test test-core check-examples generate-examples test-all lint format windows-check windows-build run-cli version release-notes clean
+.PHONY: help images screenshots windows-installer test test-core check-examples generate-examples test-all lint format windows-check windows-build run-cli version release-notes clean
 
 help:
 	@echo "make images                 Build the Docker images"
@@ -19,6 +19,7 @@ help:
 	@echo "make screenshots            Render the designer to target/screenshots/"
 	@echo "make windows-check          Lint the whole workspace for Windows"
 	@echo "make windows-build          Build crisol.exe for Windows (debug, cross-compiled)"
+	@echo "make windows-installer      Build a test setup.exe (debug, cross-compiled)"
 	@echo "make version VERSION=x.y.z  Set the version of every crate"
 	@echo "make clean                  Remove build output"
 
@@ -56,6 +57,12 @@ windows-check:
 windows-build:
 	$(COMPOSE) -e CARGO_BUILD_JOBS=$(BUILD_JOBS) windows cargo xwin build -p crisol-designer --target $(WINDOWS_TARGET)
 	@echo "Executable: target/$(WINDOWS_TARGET)/debug/crisol.exe"
+
+# A test installer from the debug cross-build; release installers come from GitHub Actions.
+windows-installer:
+	$(COMPOSE) -e CARGO_BUILD_JOBS=$(BUILD_JOBS) windows cargo xwin build -p crisol-designer -p crisol-cli -p crisol-example-customer --target $(WINDOWS_TARGET)
+	$(COMPOSE) installer makensis -V2 -DVERSION=dev -DSOURCE=../target/$(WINDOWS_TARGET)/debug -DOUTPUT=../target/crisol-dev-setup.exe crisol.nsi
+	@echo "Installer: target/crisol-dev-setup.exe"
 
 # Sets the workspace version; then move the CHANGELOG "Unreleased" entries under it,
 # commit, and push the tag vVERSION to build the Windows release on GitHub Actions.

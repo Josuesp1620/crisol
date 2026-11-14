@@ -38,3 +38,11 @@ services:
     build:
       context: .
       dockerfile: docker/screenshots.Dockerfile
+
+  installer:
+    <<: *host-user
+    image: crisol-installer:3
+    working_dir: /workspace/installer
+    build:
+      context: .
+      dockerfile: docker/installer.Dockerfile
