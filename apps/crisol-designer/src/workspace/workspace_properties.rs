@@ -117,11 +117,11 @@ impl DesignerWorkspace {
             },
         );
         window.focus(&field.focus_handle(cx), cx);
-        self.property_editor = Some(PropertyEditor {
+        self.property_editor = Some(PropertyEditor::new(
             key,
-            field: EditorField::Text(field),
-            _subscription: subscription,
-        });
+            EditorField::Text(field),
+            subscription,
+        ));
     }
 
     fn edit_choice(
@@ -144,11 +144,11 @@ impl DesignerWorkspace {
                 ComboBoxEvent::Opened | ComboBoxEvent::FocusGained => {}
             },
         );
-        self.property_editor = Some(PropertyEditor {
+        self.property_editor = Some(PropertyEditor::new(
             key,
-            field: EditorField::Choice(field),
-            _subscription: subscription,
-        });
+            EditorField::Choice(field),
+            subscription,
+        ));
     }
 
     fn flip_boolean(&mut self, node: NodeId, name: &str, cx: &mut Context<Self>) {

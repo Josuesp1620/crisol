@@ -7,5 +7,15 @@ use super::{EditorField, PropertyKey};
 pub struct PropertyEditor {
     pub key: PropertyKey,
     pub field: EditorField,
-    pub _subscription: Subscription,
+    _subscription: Subscription,
+}
+
+impl PropertyEditor {
+    pub fn new(key: PropertyKey, field: EditorField, subscription: Subscription) -> Self {
+        Self {
+            key,
+            field,
+            _subscription: subscription,
+        }
+    }
 }

@@ -29,6 +29,7 @@ crisol-engine = { path = "crates/crisol-engine" }
 crisol-codegen = { path = "crates/crisol-codegen" }
 crisol-ui = { path = "crates/crisol-ui" }
 crisol-render = { path = "crates/crisol-render" }
+image = { version = "0.25", default-features = false, features = ["png"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
@@ -36,7 +37,8 @@ unicode-segmentation = "1.12"
 uuid = { version = "1.11", features = ["v4", "serde"] }
 # GPUI is pinned to one Zed revision: crates.io only has a release a year behind main.
 gpui = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6" }
-gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6" }
+gpui_wgpu = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6" }
+gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6", features = ["x11", "wayland"] }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
@@ -54,6 +56,8 @@ module_inception = "allow"
 cast_precision_loss = "allow"
 # Every fallible function returns the single error type of its crate, documented there.
 missing_errors_doc = "allow"
+# Panics only guard bundled assets and the first window, which ship with the binary.
+missing_panics_doc = "allow"
 
 # Zed patches these crates for GPUI; the same fixes apply when GPUI is used from here.
 [patch.crates-io]

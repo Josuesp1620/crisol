@@ -23,6 +23,12 @@ impl DesignerApplication {
     /// The customer form shown on first start, so the designer never opens empty.
     const SAMPLE_FORM: &'static str = include_str!("../../../examples/customer/customer.crisol");
 
+    /// The sample form, as an unsaved document.
+    pub fn sample_session(catalog: &WidgetCatalog) -> DocumentSession {
+        let document = DocumentFiles::parse(Self::SAMPLE_FORM).expect("the sample form is valid");
+        DocumentSession::new(document, None, catalog)
+    }
+
     pub fn run() {
         gpui_platform::application()
             .with_assets(CrisolAssets)
@@ -63,14 +69,13 @@ impl DesignerApplication {
     }
 
     /// The form passed on the command line, or the sample form.
-    fn first_session(catalog: &WidgetCatalog) -> DocumentSession {
+    pub fn first_session(catalog: &WidgetCatalog) -> DocumentSession {
         if let Some(argument) = std::env::args().nth(1) {
             let path = PathBuf::from(argument);
             if let Ok(document) = DocumentFiles::load(&path) {
                 return DocumentSession::new(document, Some(path), catalog);
             }
         }
-        let document = DocumentFiles::parse(Self::SAMPLE_FORM).expect("the sample form is valid");
-        DocumentSession::new(document, None, catalog)
+        Self::sample_session(catalog)
     }
 }

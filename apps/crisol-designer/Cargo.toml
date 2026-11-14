@@ -7,6 +7,9 @@ rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 
+[lib]
+path = "src/lib.rs"
+
 [[bin]]
 name = "crisol"
 path = "src/main.rs"
@@ -21,6 +24,12 @@ crisol-ui.workspace = true
 crisol-render.workspace = true
 gpui.workspace = true
 gpui_platform.workspace = true
+
+[dev-dependencies]
+gpui = { workspace = true, features = ["test-support"] }
+gpui_platform = { workspace = true, features = ["test-support"] }
+gpui_wgpu.workspace = true
+image.workspace = true
 
 [lints]
 workspace = true
