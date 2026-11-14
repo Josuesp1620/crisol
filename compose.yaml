@@ -1,0 +1,32 @@
+# Every build and test runs in Docker as the host user, so generated files stay yours.
+# Caches live in `.cache/` and build output in `target/`, both ignored by git.
+# Use the Makefile (`make test`, `make lint`…), which passes HOST_UID and HOST_GID.
+x-host-environment: &host-environment
+  HOME: /workspace/.cache/home
+  CARGO_HOME: /workspace/.cache/cargo
+  CARGO_TARGET_DIR: /workspace/target
+  CARGO_TERM_COLOR: never
+  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+  XWIN_CACHE_DIR: /workspace/.cache/xwin
+  RUSTUP_TOOLCHAIN: "1.98.1"
+
+x-host-user: &host-user
+  user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+  volumes:
+    - .:/workspace
+  environment: *host-environment
+
+services:
+  core:
+    <<: *host-user
+    image: crisol-core:1.98.1
+    build:
+      context: .
+      dockerfile: docker/core.Dockerfile
+
+  windows:
+    <<: *host-user
+    image: crisol-windows:1.98.1
+    build:
+      context: .
+      dockerfile: docker/windows.Dockerfile
