@@ -14,7 +14,7 @@ use crisol_ui::layout::{Anchors, Grid, Group, Length, Panel, Stack, StackAlignme
 use gpui::{AnyElement, IntoElement, ParentElement, SharedString, Styled};
 
 use crate::empty_container::EmptyContainer;
-use crate::{LayoutRecorder, LengthConverter};
+use crate::{LayoutRecorder, LengthConverter, LiveControls};
 
 /// Builds the element tree of a document for the canvas. Controls look exactly as they
 /// will at run time but do not react to input; the canvas handles the pointer instead.
@@ -22,6 +22,7 @@ pub struct DesignRenderer<'document> {
     document: &'document FormDocument,
     catalog: Rc<WidgetCatalog>,
     recorder: LayoutRecorder,
+    live: Option<&'document LiveControls>,
 }
 
 impl<'document> DesignRenderer<'document> {
@@ -34,7 +35,14 @@ impl<'document> DesignRenderer<'document> {
             document,
             catalog,
             recorder,
+            live: None,
         }
+    }
+
+    /// Draws working controls instead of their appearance, for a preview window.
+    pub fn with_live_controls(mut self, live: &'document LiveControls) -> Self {
+        self.live = Some(live);
+        self
     }
 
     pub fn render(&self) -> AnyElement {
@@ -46,7 +54,10 @@ impl<'document> DesignRenderer<'document> {
             return gpui::Empty.into_any_element();
         };
         let reader = PropertyReader::new(node, self.catalog.schema(node.kind.as_str()));
-        let mut element = self.control_for(node, &reader);
+        let mut element = match self.live.and_then(|live| live.view_for(id)) {
+            Some(view) => view.clone().into_any_element(),
+            None => self.control_for(node, &reader),
+        };
         if !reader.boolean("visible") {
             element = gpui::div().opacity(0.4).child(element).into_any_element();
         }

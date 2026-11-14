@@ -8,6 +8,7 @@ members = [
     "crates/crisol-codegen",
     "crates/crisol-ui",
     "crates/crisol-render",
+    "apps/crisol-designer",
     "apps/crisol-cli",
     "examples/customer",
 ]
@@ -49,6 +50,8 @@ return_self_not_must_use = "allow"
 format_push_string = "allow"
 # Files are named after the type they hold, so `theme/theme.rs` holds `Theme`.
 module_inception = "allow"
+# Logical pixels stay far below the integers f32 represents exactly.
+cast_precision_loss = "allow"
 # Every fallible function returns the single error type of its crate, documented there.
 missing_errors_doc = "allow"
 
