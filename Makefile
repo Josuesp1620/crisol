@@ -7,7 +7,7 @@ WINDOWS_TARGET := x86_64-pc-windows-msvc
 CORE_PACKAGES := -p crisol-model -p crisol-catalog -p crisol-commands -p crisol-engine -p crisol-codegen -p crisol-cli
 BUILD_JOBS ?= 8
 
-.PHONY: help images test test-core check-examples test-all lint format windows-check windows-build run-cli version release-notes clean
+.PHONY: help images test test-core check-examples generate-examples test-all lint format windows-check windows-build run-cli version release-notes clean
 
 help:
 	@echo "make images                 Build the Docker images"
@@ -31,6 +31,10 @@ test-core:
 
 check-examples:
 	$(COMPOSE) core cargo run -q -p crisol-cli -- check examples/customer/customer.crisol
+
+# Regenerates the example form after editing customer.crisol.
+generate-examples:
+	$(COMPOSE) core cargo run -q -p crisol-cli -- generate examples/customer/customer.crisol --out examples/customer/src/forms
 
 test-all:
 	$(COMPOSE) -e CARGO_BUILD_JOBS=$(BUILD_JOBS) core cargo test --workspace

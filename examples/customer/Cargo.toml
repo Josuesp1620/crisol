@@ -1,0 +1,21 @@
+[package]
+name = "crisol-example-customer"
+description = "The customer form designed in Crisol, running as a GPUI application."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[[bin]]
+name = "customer-form"
+path = "src/main.rs"
+
+[dependencies]
+crisol-ui.workspace = true
+gpui.workspace = true
+gpui_platform.workspace = true
+
+[lints]
+workspace = true
