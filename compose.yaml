@@ -30,3 +30,11 @@ services:
     build:
       context: .
       dockerfile: docker/windows.Dockerfile
+
+  screenshots:
+    <<: *host-user
+    image: crisol-screenshots:1.98.1
+    depends_on: []
+    build:
+      context: .
+      dockerfile: docker/screenshots.Dockerfile

@@ -7,7 +7,7 @@ WINDOWS_TARGET := x86_64-pc-windows-msvc
 CORE_PACKAGES := -p crisol-model -p crisol-catalog -p crisol-commands -p crisol-engine -p crisol-codegen -p crisol-cli
 BUILD_JOBS ?= 8
 
-.PHONY: help images test test-core check-examples generate-examples test-all lint format windows-check windows-build run-cli version release-notes clean
+.PHONY: help images screenshots test test-core check-examples generate-examples test-all lint format windows-check windows-build run-cli version release-notes clean
 
 help:
 	@echo "make images                 Build the Docker images"
@@ -16,6 +16,7 @@ help:
 	@echo "make test-all               Run every test, the GPUI crates included"
 	@echo "make lint                   Check formatting and clippy on every crate"
 	@echo "make format                 Format the Rust code"
+	@echo "make screenshots            Render the designer to target/screenshots/"
 	@echo "make windows-check          Lint the whole workspace for Windows"
 	@echo "make windows-build          Build crisol.exe for Windows (debug, cross-compiled)"
 	@echo "make version VERSION=x.y.z  Set the version of every crate"
@@ -44,6 +45,10 @@ lint:
 
 format:
 	$(COMPOSE) core cargo fmt --all
+
+# Renders the designer in light and dark mode to target/screenshots/ (software GPU).
+screenshots:
+	$(COMPOSE) -e XDG_RUNTIME_DIR=/tmp -e CARGO_BUILD_JOBS=$(BUILD_JOBS) screenshots cargo test -p crisol-designer --test visual_snapshot_tests -- --ignored
 
 windows-check:
 	$(COMPOSE) -e CARGO_BUILD_JOBS=$(BUILD_JOBS) windows cargo xwin clippy --workspace --target $(WINDOWS_TARGET) -- -D warnings
