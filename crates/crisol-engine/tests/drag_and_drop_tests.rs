@@ -150,3 +150,16 @@ fn flow_controls_are_reordered_not_placed() {
             .is_none()
     );
 }
+
+#[test]
+fn children_win_over_their_container_whatever_the_recording_order() {
+    let mut scene = Scene::new();
+    let root = scene.document.root_id();
+    let panel = scene.add("Panel", root, Rect::new(0, 0, 300, 200));
+    let button = scene.add("Button", panel, Rect::new(20, 20, 100, 32));
+    let mut reversed = LayoutSnapshot::default();
+    reversed.record(button, Rect::new(20, 20, 100, 32));
+    reversed.record(panel, Rect::new(0, 0, 300, 200));
+    let tester = HitTester::new(&reversed, &scene.document);
+    assert_eq!(tester.topmost_at(Point::new(30, 30)), Some(button));
+}
