@@ -8,7 +8,7 @@ pub struct StackSchema;
 
 impl StackSchema {
     pub const DIRECTIONS: [&'static str; 2] = ["vertical", "horizontal"];
-    pub const ALIGNMENTS: [&'static str; 4] = ["start", "center", "end", "stretch"];
+    pub const ALIGNMENTS: [&'static str; 4] = ["start", "center", "end", "space_between"];
 
     pub fn build() -> WidgetSchema {
         let mut properties = vec![
@@ -22,7 +22,7 @@ impl StackSchema {
             PropertySchema::choice(
                 "alignment",
                 "Alignment",
-                "Where children sit across the direction of the stack.",
+                "Where children sit along the stack: at the start, centered, at the end or spread out.",
                 PropertyCategory::Layout,
                 &Self::ALIGNMENTS,
             ),
