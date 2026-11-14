@@ -67,4 +67,40 @@ impl DesignerTexts {
         "wgpu"
     };
     pub const GPUI_REVISION: &'static str = "GPUI 56a157e5";
+    pub const ABOUT: &'static str = "About Crisol";
+    pub const START: &'static str = "Start";
+    pub const START_SUBTITLE: &'static str = "Create a project or open a form to start designing.";
+    pub const NEW_PROJECT: &'static str = "New project";
+    pub const NEW_PROJECT_ACTION: &'static str = "New project…";
+    pub const OPEN_FORM_ACTION: &'static str = "Open form…";
+    pub const OPEN_SAMPLE: &'static str = "Open the sample form";
+    pub const RECENT: &'static str = "Open recent";
+    pub const NO_RECENT: &'static str = "Projects you create or open show up here.";
+    pub const TEMPLATES: &'static str = "Templates";
+    pub const PROJECT_NAME: &'static str = "Name";
+    pub const PROJECT_LOCATION: &'static str = "Location";
+    pub const BROWSE: &'static str = "Browse…";
+    pub const PLATFORMS: &'static str = "Platforms";
+    pub const PLATFORM_DESKTOP: &'static str = "Desktop";
+    pub const PLATFORM_DESKTOP_DETAIL: &'static str = "Windows, macOS, Linux · always included";
+    pub const PLATFORM_WEB_DETAIL: &'static str = "wasm with gpui_web · phase 6";
+    pub const PLATFORM_ANDROID_DETAIL: &'static str = "Jetpack Compose · phase 7";
+    pub const PLATFORM_IOS_DETAIL: &'static str = "SwiftUI · phase 7";
+    pub const THEME: &'static str = "Theme";
+    pub const THEME_LIGHT: &'static str = "Light";
+    pub const THEME_DARK: &'static str = "Dark";
+    pub const PROJECT_FOOTNOTE: &'static str =
+        "Creates a Cargo project with GPUI pinned to 56a157e5 and Rust 1.98.1.";
+    pub const CANCEL: &'static str = "Cancel";
+    pub const CREATE_PROJECT: &'static str = "Create project";
+    pub const DEFAULT_PROJECT_NAME: &'static str = "my-app";
+    pub const NO_FORM_OPEN: &'static str = "No form is open.";
+    pub const SAVE_CHANGES: &'static str = "Save changes before closing?";
+    pub const SAVE: &'static str = "Save";
+    pub const DISCARD: &'static str = "Don't save";
+    pub const COMING_LATER: &'static str = "Coming in a later phase";
+    pub const TAB_ORDER_LATER: &'static str = "Tab order view · phase 4";
+    pub const ZOOM_LATER: &'static str = "Zoom · phase 4";
+    pub const ALIGN_HINT: &'static str = "Select two or more controls on an absolute panel";
+    pub const CONTROLS: &'static str = "Controls";
 }

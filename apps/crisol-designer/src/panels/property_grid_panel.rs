@@ -29,6 +29,16 @@ impl<'workspace> PropertyGridPanel<'workspace> {
             .flex_1()
             .min_h_0()
             .child(PaneHeader::new(IconName::Props, DesignerTexts::PROPERTIES));
+        if self.workspace.showing_start() {
+            return panel
+                .child(
+                    div()
+                        .p(px(12.))
+                        .text_color(theme.colors.muted)
+                        .child(DesignerTexts::NO_FORM_OPEN),
+                )
+                .into_any_element();
+        }
         let Some(node) = self.workspace.session().selection().primary() else {
             return panel
                 .child(
@@ -39,9 +49,9 @@ impl<'workspace> PropertyGridPanel<'workspace> {
                 )
                 .into_any_element();
         };
-        let rows = PropertyRowsBuilder::new(self.workspace).rows(node);
+        let rows = self.visible_rows(node, cx);
         panel = panel
-            .child(self.object_selector(&theme, node))
+            .child(self.object_selector(&theme, node, cx))
             .child(self.tool_strip(&theme, cx))
             .child(self.grid(&theme, &rows, cx))
             .child(self.description(&theme, &rows));
@@ -52,6 +62,7 @@ impl<'workspace> PropertyGridPanel<'workspace> {
         &self,
         theme: &Theme,
         node: crisol_model::identity::NodeId,
+        cx: &mut Context<DesignerWorkspace>,
     ) -> impl IntoElement {
         let document = self.workspace.session().document();
         let (name, kind, icon) = match document.node(node) {
@@ -64,13 +75,16 @@ impl<'workspace> PropertyGridPanel<'workspace> {
             }
             Err(_) => (String::new(), String::new(), IconName::Form),
         };
-        div()
+        let selector = div()
+            .id("object-selector")
             .flex()
             .items_center()
             .gap(px(8.))
             .mx(px(8.))
             .mt(px(8.))
             .mb(px(6.))
+            .cursor_pointer()
+            .on_click(cx.listener(|workspace, _, _, cx| workspace.toggle_object_list(cx)))
             .px(px(8.))
             .py(px(4.))
             .rounded(theme.metrics.small_radius)
@@ -85,7 +99,91 @@ impl<'workspace> PropertyGridPanel<'workspace> {
                     .child(name),
             )
             .child(div().flex_1().text_color(theme.colors.muted).child(kind))
-            .child(Icon::new(IconName::Down).color(theme.colors.muted))
+            .child(Icon::new(IconName::Down).color(theme.colors.muted));
+        let mut container = div().relative().child(selector);
+        if self.workspace.object_list_open() {
+            container = container.child(self.object_list(theme, cx));
+        }
+        container
+    }
+
+    /// The rows after the search filter and the alphabetical order.
+    fn visible_rows(
+        &self,
+        node: crisol_model::identity::NodeId,
+        cx: &mut Context<DesignerWorkspace>,
+    ) -> Vec<PropertyRow> {
+        let query = self
+            .workspace
+            .property_search()
+            .read(cx)
+            .value()
+            .to_lowercase();
+        let mut rows = Vec::new();
+        for row in PropertyRowsBuilder::new(self.workspace).rows(node) {
+            if query.is_empty() || row.label.to_lowercase().contains(&query) {
+                rows.push(row);
+            }
+        }
+        if self.workspace.alphabetical() {
+            rows.sort_by(|first, second| {
+                first.label.to_lowercase().cmp(&second.label.to_lowercase())
+            });
+            for row in &mut rows {
+                DesignerTexts::PROPERTIES.clone_into(&mut row.category);
+            }
+        }
+        rows
+    }
+
+    /// Every control of the form, to select one by name as in Visual Studio.
+    fn object_list(&self, theme: &Theme, cx: &mut Context<DesignerWorkspace>) -> impl IntoElement {
+        let document = self.workspace.session().document();
+        let mut list = div()
+            .id("object-list")
+            .absolute()
+            .top(px(36.))
+            .left(px(8.))
+            .right(px(8.))
+            .max_h(px(320.))
+            .overflow_y_scroll()
+            .py(px(4.))
+            .bg(theme.colors.surface)
+            .border_1()
+            .border_color(theme.colors.line)
+            .rounded(theme.metrics.control_radius)
+            .shadow_lg()
+            .occlude();
+        for id in crisol_model::document::DocumentWalker::new(document).all() {
+            let Ok(found) = document.node(id) else {
+                continue;
+            };
+            let kind = self
+                .workspace
+                .catalog()
+                .schema(found.kind.as_str())
+                .map_or(found.kind.to_string(), |schema| schema.label.to_owned());
+            list = list.child(
+                div()
+                    .id(gpui::ElementId::Name(found.name.to_string().into()))
+                    .flex()
+                    .gap(px(8.))
+                    .px(px(10.))
+                    .py(px(4.))
+                    .cursor_pointer()
+                    .hover(|style| style.bg(theme.colors.selection_soft))
+                    .on_click(
+                        cx.listener(move |workspace, _, _, cx| workspace.choose_object(id, cx)),
+                    )
+                    .child(
+                        div()
+                            .font_family(theme.fonts.mono.clone())
+                            .child(found.name.to_string()),
+                    )
+                    .child(div().text_color(theme.colors.muted).child(kind)),
+            );
+        }
+        gpui::deferred(list).with_priority(1)
     }
 
     fn tool_strip(&self, theme: &Theme, cx: &mut Context<DesignerWorkspace>) -> impl IntoElement {
@@ -98,12 +196,27 @@ impl<'workspace> PropertyGridPanel<'workspace> {
             .pb(px(6.))
             .border_b_1()
             .border_color(theme.colors.line)
-            .child(IconButton::new("by-category", IconName::Cats).active(true))
-            .child(IconButton::new("alphabetical", IconName::Az))
+            .child(
+                IconButton::new("by-category", IconName::Cats)
+                    .active(!self.workspace.alphabetical())
+                    .tooltip("Group by category")
+                    .on_click(Box::new(cx.listener(|workspace, _, _, cx| {
+                        workspace.set_alphabetical(false, cx);
+                    }))),
+            )
+            .child(
+                IconButton::new("alphabetical", IconName::Az)
+                    .active(self.workspace.alphabetical())
+                    .tooltip("Sort alphabetically")
+                    .on_click(Box::new(cx.listener(|workspace, _, _, cx| {
+                        workspace.set_alphabetical(true, cx);
+                    }))),
+            )
             .child(ToolBarSeparator)
             .child(
                 IconButton::new("properties-tab", IconName::Props)
                     .active(tab == PropertyTab::Properties)
+                    .tooltip("Properties")
                     .on_click(Box::new(cx.listener(|workspace, _, _, cx| {
                         workspace.show_property_tab(PropertyTab::Properties, cx);
                     }))),
@@ -111,6 +224,7 @@ impl<'workspace> PropertyGridPanel<'workspace> {
             .child(
                 IconButton::new("events-tab", IconName::Bolt)
                     .active(tab == PropertyTab::Events)
+                    .tooltip("Events")
                     .on_click(Box::new(cx.listener(|workspace, _, _, cx| {
                         workspace.show_property_tab(PropertyTab::Events, cx);
                     }))),
@@ -118,18 +232,10 @@ impl<'workspace> PropertyGridPanel<'workspace> {
             .child(
                 div()
                     .ml_auto()
+                    .w(px(120.))
                     .flex()
-                    .items_center()
-                    .gap(px(5.))
-                    .px(px(8.))
-                    .py(px(3.))
-                    .rounded(theme.metrics.small_radius)
-                    .border_1()
-                    .border_color(theme.colors.line)
-                    .bg(theme.colors.background)
-                    .text_color(theme.colors.muted)
-                    .child(Icon::new(IconName::Search).color(theme.colors.muted))
-                    .child(DesignerTexts::SEARCH),
+                    .flex_col()
+                    .child(self.workspace.property_search().clone()),
             )
     }
 
@@ -150,8 +256,20 @@ impl<'workspace> PropertyGridPanel<'workspace> {
         for (index, row) in rows.iter().enumerate() {
             if row.category != current_category {
                 current_category.clone_from(&row.category);
+                let category = row.category.clone();
+                let collapsed = self.workspace.is_category_collapsed(&category);
+                let chevron = if collapsed {
+                    IconName::Right
+                } else {
+                    IconName::Down
+                };
                 grid = grid.child(
                     div()
+                        .id(gpui::ElementId::Name(format!("category-{category}").into()))
+                        .cursor_pointer()
+                        .on_click(cx.listener(move |workspace, _, _, cx| {
+                            workspace.toggle_category(&category, cx);
+                        }))
                         .flex()
                         .items_center()
                         .gap(px(5.))
@@ -162,9 +280,12 @@ impl<'workspace> PropertyGridPanel<'workspace> {
                         .border_color(theme.colors.line)
                         .font_weight(FontWeight::SEMIBOLD)
                         .text_size(px(11.5))
-                        .child(Icon::new(IconName::Down).color(theme.colors.muted))
+                        .child(Icon::new(chevron).color(theme.colors.muted))
                         .child(row.category.clone()),
                 );
+            }
+            if self.workspace.is_category_collapsed(&row.category) {
+                continue;
             }
             grid = grid.child(self.row(theme, index, row, cx));
         }

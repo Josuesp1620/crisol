@@ -49,14 +49,10 @@ impl<'workspace> TitleBar<'workspace> {
             }
             menus = menus.child(item);
         }
-        let project = self
-            .workspace
-            .session()
-            .path()
-            .and_then(|path| path.parent())
-            .and_then(|folder| folder.file_name())
-            .map(|name| name.to_string_lossy().into_owned())
-            .unwrap_or_default();
+        let project = match self.workspace.project() {
+            Some(project) => project.name().to_owned(),
+            None => String::new(),
+        };
         div()
             .id("title-bar")
             .flex()
@@ -85,24 +81,7 @@ impl<'workspace> TitleBar<'workspace> {
                     .child(DesignerTexts::APP_NAME),
             )
             .child(menus)
-            .child(
-                div()
-                    .ml_auto()
-                    .w(px(330.))
-                    .flex()
-                    .items_center()
-                    .gap(px(8.))
-                    .px(px(8.))
-                    .py(px(4.))
-                    .rounded(theme.metrics.control_radius)
-                    .border_1()
-                    .border_color(theme.colors.line)
-                    .bg(theme.colors.surface)
-                    .text_color(theme.colors.muted)
-                    .child(Icon::new(IconName::Search).color(theme.colors.muted))
-                    .child(div().flex_1().child(DesignerTexts::COMMAND_SEARCH))
-                    .child(KeyboardHint::new(DesignerTexts::COMMAND_SEARCH_SHORTCUT)),
-            )
+            .child(self.command_search(&theme, window, cx))
             .child(
                 div()
                     .ml_auto()
@@ -113,6 +92,93 @@ impl<'workspace> TitleBar<'workspace> {
             )
             .child(Self::window_buttons(&theme))
             .into_any_element()
+    }
+
+    /// The command search: a button that becomes the palette's text field when opened.
+    fn command_search(
+        &self,
+        theme: &Theme,
+        window: &mut Window,
+        cx: &mut Context<DesignerWorkspace>,
+    ) -> AnyElement {
+        let mut search = div().relative().ml_auto().w(px(330.));
+        if self.workspace.palette_open() {
+            search = search
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .child(self.workspace.palette_search().clone()),
+                )
+                .child(self.palette_list(theme, window, cx));
+        } else {
+            search = search.child(
+                div()
+                    .id("command-search")
+                    .flex()
+                    .items_center()
+                    .gap(px(8.))
+                    .px(px(8.))
+                    .py(px(4.))
+                    .rounded(theme.metrics.control_radius)
+                    .border_1()
+                    .border_color(theme.colors.line)
+                    .bg(theme.colors.surface)
+                    .text_color(theme.colors.muted)
+                    .cursor_pointer()
+                    .on_click(cx.listener(|workspace, _, window, cx| {
+                        workspace.toggle_palette(window, cx);
+                    }))
+                    .child(Icon::new(IconName::Search).color(theme.colors.muted))
+                    .child(div().flex_1().child(DesignerTexts::COMMAND_SEARCH))
+                    .child(KeyboardHint::new(DesignerTexts::COMMAND_SEARCH_SHORTCUT)),
+            );
+        }
+        search.into_any_element()
+    }
+
+    fn palette_list(
+        &self,
+        theme: &Theme,
+        _window: &mut Window,
+        cx: &mut Context<DesignerWorkspace>,
+    ) -> impl IntoElement {
+        let mut list = div()
+            .id("palette")
+            .absolute()
+            .top(px(34.))
+            .left_0()
+            .right_0()
+            .max_h(px(360.))
+            .overflow_y_scroll()
+            .py(px(4.))
+            .bg(theme.colors.surface)
+            .border_1()
+            .border_color(theme.colors.line)
+            .rounded(theme.metrics.panel_radius)
+            .shadow_lg()
+            .occlude();
+        for command in self.workspace.palette_commands(cx) {
+            let shortcut = command.shortcut();
+            list = list.child(
+                div()
+                    .id(command.label())
+                    .flex()
+                    .justify_between()
+                    .px(px(12.))
+                    .py(px(6.))
+                    .cursor_pointer()
+                    .hover(|style| style.bg(theme.colors.selection_soft))
+                    .on_click(cx.listener(move |workspace, _, window, cx| {
+                        workspace.run_palette_command(command, window, cx);
+                    }))
+                    .child(command.label())
+                    .when(!shortcut.is_empty(), |item| {
+                        item.child(KeyboardHint::new(shortcut))
+                    }),
+            );
+        }
+        gpui::deferred(list).with_priority(1)
     }
 
     fn window_buttons(theme: &Theme) -> impl IntoElement {

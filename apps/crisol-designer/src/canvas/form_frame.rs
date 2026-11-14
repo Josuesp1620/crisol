@@ -36,7 +36,6 @@ impl FormFrame {
             .flex()
             .flex_col()
             .w(self.width)
-            .min_h(self.height)
             .bg(theme.colors.surface)
             .border_1()
             .border_color(theme.colors.line)
@@ -63,7 +62,14 @@ impl FormFrame {
                     .child(self.title)
                     .child(buttons),
             )
-            .child(div().flex().flex_col().flex_1().child(body))
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .h(self.height)
+                    .overflow_hidden()
+                    .child(body),
+            )
             .into_any_element()
     }
 }

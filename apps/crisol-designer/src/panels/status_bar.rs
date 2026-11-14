@@ -58,6 +58,9 @@ impl<'workspace> StatusBar<'workspace> {
     }
 
     fn selection_parts(&self) -> Vec<String> {
+        if self.workspace.showing_start() {
+            return Vec::new();
+        }
         let session = self.workspace.session();
         let Some(node) = session.selection().primary() else {
             return Vec::new();

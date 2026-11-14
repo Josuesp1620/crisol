@@ -3,13 +3,14 @@ use crisol_ui::icon::{Icon, IconName};
 use crisol_ui::theme::Theme;
 use gpui::{AnyElement, Context, FontWeight, IntoElement, ParentElement, Styled, Window, div, px};
 
-use super::BottomPanel;
+use super::{BottomPanel, CodePanel, StartPage};
 use crate::canvas::DesignCanvas;
 use crate::chrome::DocumentTab;
 use crate::designer_texts::DesignerTexts;
 use crate::workspace::DesignerWorkspace;
 
-/// The middle column: document tabs, the selection path, the canvas and the bottom panel.
+/// The middle column: document and code tabs, then the start page, a code view or the
+/// selection path with the canvas, and the bottom panel.
 pub struct DocumentArea<'workspace> {
     workspace: &'workspace DesignerWorkspace,
 }
@@ -21,15 +22,41 @@ impl<'workspace> DocumentArea<'workspace> {
 
     pub fn render(self, window: &mut Window, cx: &mut Context<DesignerWorkspace>) -> AnyElement {
         let theme = Theme::of(cx).clone();
-        let settings = *self.workspace.settings();
+        let mut area = div()
+            .flex()
+            .flex_col()
+            .flex_1()
+            .min_w_0()
+            .h_full()
+            .child(self.tabs(&theme, cx));
+        if self.workspace.showing_start() {
+            area = area.child(StartPage::new(self.workspace).render(window, cx));
+        } else if let Some(view) = self.workspace.active_code() {
+            area = area.child(CodePanel::new(view).render(window, cx));
+        } else {
+            area = area
+                .child(self.breadcrumb(&theme))
+                .child(DesignCanvas::new(self.workspace).render(window, cx));
+        }
+        area.child(BottomPanel::new(self.workspace).render(window, cx))
+            .into_any_element()
+    }
+
+    fn tabs(&self, theme: &Theme, cx: &mut Context<DesignerWorkspace>) -> impl IntoElement {
         let mut tabs = div()
             .flex()
             .flex_none()
-            .h(settings.document_tabs_height)
+            .h(self.workspace.settings().document_tabs_height)
             .bg(theme.colors.chrome)
             .border_b_1()
             .border_color(theme.colors.line)
             .overflow_hidden();
+        if self.workspace.showing_start() {
+            return tabs.child(
+                DocumentTab::new("start", IconName::Box, DesignerTexts::START).active(true),
+            );
+        }
+        let code_active = self.workspace.active_code_index();
         for (index, session) in self.workspace.sessions().iter().enumerate() {
             let label = format!(
                 "{} {}",
@@ -38,24 +65,34 @@ impl<'workspace> DocumentArea<'workspace> {
             );
             tabs = tabs.child(
                 DocumentTab::new(("document", index), IconName::Form, label)
-                    .active(index == self.workspace.active_index())
+                    .active(code_active.is_none() && index == self.workspace.active_index())
                     .dirty(session.has_unsaved_changes())
                     .on_click(Box::new(cx.listener(move |workspace, _, _, cx| {
                         workspace.activate(index, cx);
+                    })))
+                    .on_close(Box::new(cx.listener(move |workspace, _, window, cx| {
+                        workspace.close_tab(index, window, cx);
                     }))),
             );
         }
-        div()
-            .flex()
-            .flex_col()
-            .flex_1()
-            .min_w_0()
-            .h_full()
-            .child(tabs)
-            .child(self.breadcrumb(&theme))
-            .child(DesignCanvas::new(self.workspace).render(window, cx))
-            .child(BottomPanel::new(self.workspace).render(window, cx))
-            .into_any_element()
+        for (index, view) in self.workspace.code_views().iter().enumerate() {
+            let icon = if view.is_generated() {
+                IconName::Lock
+            } else {
+                IconName::Rust
+            };
+            tabs = tabs.child(
+                DocumentTab::new(("code", index), icon, view.file_name())
+                    .active(code_active == Some(index))
+                    .on_click(Box::new(cx.listener(move |workspace, _, _, cx| {
+                        workspace.activate_code(index, cx);
+                    })))
+                    .on_close(Box::new(cx.listener(move |workspace, _, _, cx| {
+                        workspace.close_code(index, cx);
+                    }))),
+            );
+        }
+        tabs
     }
 
     fn breadcrumb(&self, theme: &Theme) -> impl IntoElement {

@@ -1,6 +1,8 @@
 use crisol_catalog::naming::NodeFactory;
 use crisol_commands::Command;
-use crisol_commands::commands::{MoveNodeCommand, SetPlacementCommand, Transaction};
+use crisol_commands::commands::{
+    MoveNodeCommand, SetFormInfoCommand, SetPlacementCommand, Transaction,
+};
 use crisol_engine::EngineSettings;
 use crisol_engine::dragging::{DragKind, DragSession, DropTargetResolver};
 use crisol_engine::layout::{HitTester, LayoutSnapshot};
@@ -8,7 +10,7 @@ use crisol_engine::selection::ResizeHandle;
 use crisol_model::geometry::{Point, Rect};
 use crisol_model::identity::NodeId;
 use crisol_model::layout::{Placement, SizeMode};
-use gpui::{Context, Modifiers, Pixels};
+use gpui::{Context, CursorStyle, Modifiers, Pixels};
 
 use super::{CanvasInteraction, DesignerWorkspace};
 
@@ -16,27 +18,36 @@ use super::{CanvasInteraction, DesignerWorkspace};
 impl DesignerWorkspace {
     /// Pixels the pointer must travel before a press becomes a drag.
     const DRAG_THRESHOLD: i32 = 3;
+    /// The smallest form the canvas lets you drag to.
+    const FORM_MINIMUM: (i32, i32) = (160, 100);
+
+    /// Handles the form itself can be dragged by: it grows to the right and down.
+    pub const FORM_HANDLES: [ResizeHandle; 3] = [
+        ResizeHandle::Right,
+        ResizeHandle::Bottom,
+        ResizeHandle::BottomRight,
+    ];
 
     pub fn canvas_mouse_down(
         &mut self,
         position: gpui::Point<Pixels>,
         modifiers: Modifiers,
+        click_count: usize,
         cx: &mut Context<Self>,
     ) {
         let point = Self::point_of(position);
         let snapshot = self.session().recorder().snapshot();
-        let settings = EngineSettings::default();
         self.open_menu = None;
-        if let Some(selected) = self.session().selection().primary()
-            && let Some(rect) = snapshot.bounds_of(selected)
-            && let Some(handle) = ResizeHandle::at(rect, point, settings.handle_size)
-        {
+        self.palette_open = false;
+        self.object_list_open = false;
+        if let Some((selected, rect, handle)) = self.handle_at(&snapshot, point) {
             self.interaction = CanvasInteraction::Pressing {
                 node: selected,
                 kind: DragKind::Resize(handle),
                 start: point,
                 rect,
             };
+            self.canvas_cursor = Self::resize_cursor(handle);
             return;
         }
         let document = self.session().document();
@@ -47,6 +58,10 @@ impl DesignerWorkspace {
             self.interaction = CanvasInteraction::Idle;
             return;
         };
+        if click_count >= 2 {
+            self.open_default_event(node, cx);
+            return;
+        }
         self.select(node, modifiers.control || modifiers.platform, cx);
         if let Some(rect) = snapshot.bounds_of(node) {
             self.interaction = CanvasInteraction::Pressing {
@@ -89,7 +104,27 @@ impl DesignerWorkspace {
         cx.notify();
     }
 
+    /// Updates the pointer shape while the mouse moves over the canvas without a button.
+    pub fn canvas_hover(&mut self, position: gpui::Point<Pixels>, cx: &mut Context<Self>) {
+        let point = Self::point_of(position);
+        let snapshot = self.session().recorder().snapshot();
+        let cursor = if let Some((_, _, handle)) = self.handle_at(&snapshot, point) {
+            Self::resize_cursor(handle)
+        } else {
+            match HitTester::new(&snapshot, self.session().document()).topmost_at(point) {
+                Some(node) if self.session().selection().contains(node) => CursorStyle::OpenHand,
+                Some(_) => CursorStyle::PointingHand,
+                None => CursorStyle::Arrow,
+            }
+        };
+        if cursor != self.canvas_cursor {
+            self.canvas_cursor = cursor;
+            cx.notify();
+        }
+    }
+
     pub fn canvas_mouse_up(&mut self, cx: &mut Context<Self>) {
+        self.canvas_cursor = CursorStyle::Arrow;
         let interaction = std::mem::take(&mut self.interaction);
         if let CanvasInteraction::Dragging {
             session,
@@ -150,6 +185,9 @@ impl DesignerWorkspace {
         drop: Option<crisol_engine::dragging::DropTarget>,
     ) -> Option<Box<dyn Command>> {
         let document = self.session().document();
+        if session.node == document.root_id() {
+            return Some(self.resize_form_command(final_rect));
+        }
         let snapshot = self.session().recorder().snapshot();
         let parent = document.parent_of(session.node)?;
         let parent_origin = snapshot
@@ -212,6 +250,79 @@ impl DesignerWorkspace {
             Placement::Absolute { .. } => return None,
         };
         Some(Box::new(SetPlacementCommand { node, placement }))
+    }
+
+    fn resize_form_command(&self, rect: Rect) -> Box<dyn Command> {
+        let mut form = self.session().document().form().clone();
+        form.size = crisol_model::geometry::Size::new(
+            rect.size.width.max(Self::FORM_MINIMUM.0),
+            rect.size.height.max(Self::FORM_MINIMUM.1),
+        );
+        Box::new(SetFormInfoCommand { form })
+    }
+
+    /// The selected control's resize handle under `point`; for the form, only its
+    /// right and bottom handles.
+    fn handle_at(
+        &self,
+        snapshot: &LayoutSnapshot,
+        point: Point,
+    ) -> Option<(NodeId, Rect, ResizeHandle)> {
+        let selected = self.session().selection().primary()?;
+        let rect = snapshot.bounds_of(selected)?;
+        let handle = ResizeHandle::at(rect, point, EngineSettings::default().handle_size)?;
+        let is_form = selected == self.session().document().root_id();
+        if is_form && !Self::FORM_HANDLES.contains(&handle) {
+            return None;
+        }
+        Some((selected, rect, handle))
+    }
+
+    fn resize_cursor(handle: ResizeHandle) -> CursorStyle {
+        match handle {
+            ResizeHandle::Left | ResizeHandle::Right => CursorStyle::ResizeLeftRight,
+            ResizeHandle::Top | ResizeHandle::Bottom => CursorStyle::ResizeUpDown,
+            ResizeHandle::TopLeft | ResizeHandle::BottomRight => CursorStyle::ResizeUpLeftDownRight,
+            ResizeHandle::TopRight | ResizeHandle::BottomLeft => CursorStyle::ResizeUpRightDownLeft,
+        }
+    }
+
+    /// Double-click: connect the control's main event and show its method, as Windows Forms
+    /// does when a button is double-clicked.
+    fn open_default_event(&mut self, node: NodeId, cx: &mut Context<Self>) {
+        self.select(node, false, cx);
+        let Some(event) = self
+            .session()
+            .document()
+            .node(node)
+            .ok()
+            .and_then(|found| self.catalog.schema(found.kind.as_str()))
+            .and_then(|schema| schema.default_event)
+        else {
+            return;
+        };
+        self.property_tab = super::PropertyTab::Events;
+        let key = super::PropertyKey::Event(event.to_owned());
+        self.focused_property = Some(key.clone());
+        if self
+            .session()
+            .document()
+            .node(node)
+            .is_ok_and(|found| found.events.handler_for(event).is_none())
+        {
+            self.bind_default_handler(node, event, cx);
+        }
+        let handler = self
+            .session()
+            .document()
+            .node(node)
+            .ok()
+            .and_then(|found| found.events.handler_for(event).map(ToString::to_string));
+        if self.session().path().is_some() {
+            self.generate_code(cx);
+            self.view_code(handler.as_deref(), cx);
+        }
+        cx.notify();
     }
 
     /// Rectangles a dragged control can align with: its siblings and its container.

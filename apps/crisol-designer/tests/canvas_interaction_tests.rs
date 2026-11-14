@@ -36,7 +36,7 @@ impl DesignerHarness {
         let session = DesignerApplication::sample_session(&catalog);
         let window = cx
             .open_window(size(px(1440.), px(900.)), |_, cx| {
-                cx.new(|cx| DesignerWorkspace::new(session, catalog, cx))
+                cx.new(|cx| DesignerWorkspace::new(session, false, catalog, cx))
             })
             .expect("the window opens");
         let workspace = window.root(&mut cx).expect("the workspace is the root");
@@ -259,5 +259,31 @@ fn clicking_a_yes_no_property_flips_it() {
     assert_eq!(
         checked,
         Some(crisol_model::properties::PropertyValue::Boolean(false))
+    );
+}
+
+#[test]
+fn dragging_the_form_corner_resizes_the_form() {
+    let mut harness = DesignerHarness::open();
+    let root = harness.node("frm_customer");
+    harness.cx.update(|cx| {
+        harness
+            .workspace
+            .update(cx, |workspace, cx| workspace.select(root, false, cx));
+    });
+    harness.draw();
+    let bounds = harness.bounds(root);
+    let corner = point(px(bounds.right() as f32), px(bounds.bottom() as f32));
+    let target = point(corner.x + px(40.), corner.y + px(30.));
+    harness.press(corner);
+    harness.move_pressed(point(corner.x + px(10.), corner.y + px(10.)));
+    harness.move_pressed(target);
+    harness.release(target);
+    let size = harness
+        .cx
+        .update(|cx| harness.workspace.read(cx).session().document().form().size);
+    assert_eq!(
+        (size.width, size.height),
+        (bounds.size.width + 40, bounds.size.height + 30)
     );
 }

@@ -36,6 +36,7 @@ impl<'workspace> DesignCanvas<'workspace> {
             .flex_1()
             .min_h_0()
             .overflow_hidden()
+            .cursor(self.workspace.canvas_cursor())
             .bg(theme.colors.background);
         Self::with_pointer_handlers(surface, cx)
             .child(
@@ -130,12 +131,19 @@ impl<'workspace> DesignCanvas<'workspace> {
             .on_mouse_down(
                 MouseButton::Left,
                 cx.listener(|workspace, event: &MouseDownEvent, _, cx| {
-                    workspace.canvas_mouse_down(event.position, event.modifiers, cx);
+                    workspace.canvas_mouse_down(
+                        event.position,
+                        event.modifiers,
+                        event.click_count,
+                        cx,
+                    );
                 }),
             )
             .on_mouse_move(cx.listener(|workspace, event: &MouseMoveEvent, _, cx| {
                 if event.pressed_button == Some(MouseButton::Left) {
                     workspace.canvas_mouse_move(event.position, cx);
+                } else {
+                    workspace.canvas_hover(event.position, cx);
                 }
             }))
             .on_mouse_up(

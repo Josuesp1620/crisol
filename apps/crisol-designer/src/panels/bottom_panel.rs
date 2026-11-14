@@ -81,7 +81,7 @@ impl<'workspace> BottomPanel<'workspace> {
                 .child(Icon::new(IconName::Min).color(theme.colors.muted)),
         );
         let content = match active {
-            BottomTab::Errors => self.errors(&theme),
+            BottomTab::Errors => self.errors(&theme, cx),
             BottomTab::Output => self.output(&theme),
             BottomTab::History => self.history(&theme),
         };
@@ -94,11 +94,18 @@ impl<'workspace> BottomPanel<'workspace> {
             .border_color(theme.colors.line)
             .bg(theme.colors.surface)
             .child(tabs)
-            .child(div().flex_1().min_h_0().overflow_hidden().child(content))
+            .child(
+                div()
+                    .id("bottom-content")
+                    .flex_1()
+                    .min_h_0()
+                    .overflow_y_scroll()
+                    .child(content),
+            )
             .into_any_element()
     }
 
-    fn errors(&self, theme: &Theme) -> AnyElement {
+    fn errors(&self, theme: &Theme, cx: &mut Context<DesignerWorkspace>) -> AnyElement {
         let diagnostics = self.workspace.session().diagnostics();
         let mut counts = [0; 3];
         for diagnostic in diagnostics {
@@ -130,7 +137,8 @@ impl<'workspace> BottomPanel<'workspace> {
                 DesignerTexts::MESSAGES,
             ));
         let mut list = div().flex().flex_col().child(summary);
-        for diagnostic in diagnostics {
+        for (index, diagnostic) in diagnostics.iter().enumerate() {
+            let node = diagnostic.node;
             let (icon, color) = match diagnostic.severity {
                 DiagnosticSeverity::Error => (IconName::Err, theme.colors.danger),
                 DiagnosticSeverity::Warning => (IconName::Warn, theme.colors.warning),
@@ -138,6 +146,7 @@ impl<'workspace> BottomPanel<'workspace> {
             };
             list = list.child(
                 div()
+                    .id(("diagnostic", index))
                     .flex()
                     .items_center()
                     .gap(px(8.))
@@ -145,6 +154,9 @@ impl<'workspace> BottomPanel<'workspace> {
                     .py(px(4.))
                     .border_b_1()
                     .border_color(theme.colors.line)
+                    .cursor_pointer()
+                    .hover(|style| style.bg(theme.colors.sunken))
+                    .on_click(cx.listener(move |workspace, _, _, cx| workspace.reveal(node, cx)))
                     .child(Icon::new(icon).color(color))
                     .child(div().flex_1().truncate().child(diagnostic.message.clone()))
                     .child(Self::location(theme, diagnostic.location.clone(), px(190.)))

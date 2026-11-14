@@ -36,7 +36,6 @@ impl DesignerApplication {
                 CrisolUi::install(ThemeMode::Light, cx).expect("the bundled fonts load");
                 DesignerKeyBindings::install(cx);
                 let catalog = Rc::new(WidgetCatalog::standard());
-                let first = Self::first_session(&catalog);
                 let settings = DesignerSettings::default();
                 let bounds = Bounds::centered(
                     None,
@@ -59,23 +58,18 @@ impl DesignerApplication {
                     ) {
                         Theme::set_mode(ThemeMode::Dark, cx);
                     }
-                    let workspace = cx.new(|cx| DesignerWorkspace::new(first, catalog, cx));
+                    let sample = Self::sample_session(&catalog);
+                    let workspace = cx.new(|cx| DesignerWorkspace::new(sample, true, catalog, cx));
+                    if let Some(argument) = std::env::args().nth(1) {
+                        workspace.update(cx, |workspace, cx| {
+                            workspace.open_any(PathBuf::from(argument), cx);
+                        });
+                    }
                     window.focus(&workspace.focus_handle(cx), cx);
                     workspace
                 });
                 opened.expect("the designer window opens");
                 cx.activate(true);
             });
-    }
-
-    /// The form passed on the command line, or the sample form.
-    pub fn first_session(catalog: &WidgetCatalog) -> DocumentSession {
-        if let Some(argument) = std::env::args().nth(1) {
-            let path = PathBuf::from(argument);
-            if let Ok(document) = DocumentFiles::load(&path) {
-                return DocumentSession::new(document, Some(path), catalog);
-            }
-        }
-        Self::sample_session(catalog)
     }
 }

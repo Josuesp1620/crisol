@@ -7,7 +7,7 @@ use crisol_model::identity::NodeId;
 use crisol_ui::theme::ThemeColors;
 use gpui::{BorderStyle, Bounds, Pixels, Window, fill, outline, point, px, quad, size};
 
-use crate::workspace::CanvasInteraction;
+use crate::workspace::{CanvasInteraction, DesignerWorkspace};
 
 /// Paints what sits above the form: selection frames, resize handles, smart guides,
 /// the drop marker and the dragged outline. It never draws inside the controls.
@@ -26,10 +26,12 @@ impl SelectionOverlay {
 
     pub fn paint(&self, window: &mut Window) {
         for node in &self.selection {
-            if *node == self.root {
+            let Some(rect) = self.snapshot.bounds_of(*node) else {
                 continue;
-            }
-            if let Some(rect) = self.snapshot.bounds_of(*node) {
+            };
+            if *node == self.root {
+                self.paint_form_handles(rect, window);
+            } else {
                 self.paint_selection(rect, *node == self.selection[0], window);
             }
         }
@@ -76,6 +78,26 @@ impl SelectionOverlay {
         }
         let half = self.handle_size / 2.;
         for handle in ResizeHandle::ALL {
+            let center = handle.center_on(rect);
+            let bounds = Bounds::new(
+                point(px(center.x as f32 - half), px(center.y as f32 - half)),
+                size(px(self.handle_size), px(self.handle_size)),
+            );
+            window.paint_quad(quad(
+                bounds,
+                px(1.),
+                self.colors.surface,
+                px(1.5),
+                self.colors.selection,
+                BorderStyle::Solid,
+            ));
+        }
+    }
+
+    /// The form only resizes from its right and bottom edges, as in Windows Forms.
+    fn paint_form_handles(&self, rect: Rect, window: &mut Window) {
+        let half = self.handle_size / 2.;
+        for handle in DesignerWorkspace::FORM_HANDLES {
             let center = handle.center_on(rect);
             let bounds = Bounds::new(
                 point(px(center.x as f32 - half), px(center.y as f32 - half)),

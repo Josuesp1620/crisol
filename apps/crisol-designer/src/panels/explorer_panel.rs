@@ -1,6 +1,9 @@
 use crisol_ui::icon::{Icon, IconName};
 use crisol_ui::theme::Theme;
-use gpui::{AnyElement, Context, IntoElement, ParentElement, Styled, Window, div, px};
+use gpui::{
+    AnyElement, Context, InteractiveElement, IntoElement, ParentElement,
+    StatefulInteractiveElement, Styled, Window, div, px,
+};
 
 use crate::chrome::{PaneHeader, TreeRow};
 use crate::designer_texts::DesignerTexts;
@@ -19,8 +22,23 @@ impl<'workspace> ExplorerPanel<'workspace> {
     pub fn render(self, _window: &mut Window, cx: &mut Context<DesignerWorkspace>) -> AnyElement {
         let theme = Theme::of(cx).clone();
         let session = self.workspace.session();
-        let mut rows = div().flex().flex_col().pt(px(4.)).overflow_hidden();
-        if self.workspace.explorer().is_empty() {
+        let mut rows = div()
+            .id("explorer-rows")
+            .flex()
+            .flex_col()
+            .flex_1()
+            .min_h_0()
+            .pt(px(4.))
+            .overflow_y_scroll();
+        if self.workspace.showing_start() {
+            rows = rows.child(
+                div()
+                    .px(px(12.))
+                    .py(px(8.))
+                    .text_color(theme.colors.muted)
+                    .child(crate::designer_texts::DesignerTexts::NO_FORM_OPEN),
+            );
+        } else if self.workspace.explorer().is_empty() {
             rows = rows.child(
                 TreeRow::new("unsaved", 0, IconName::Form, session.file_name()).selected(true),
             );
@@ -53,10 +71,14 @@ impl<'workspace> ExplorerPanel<'workspace> {
                         .child("M"),
                 );
             }
+            let path = entry.path.clone();
             if entry.is_form {
-                let path = entry.path.clone();
                 row = row.on_click(Box::new(cx.listener(move |workspace, _, _, cx| {
                     workspace.open_path(path.clone(), cx);
+                })));
+            } else if entry.icon == IconName::Rust {
+                row = row.on_click(Box::new(cx.listener(move |workspace, _, _, cx| {
+                    workspace.open_code(&path, None, cx);
                 })));
             }
             rows = rows.child(row);

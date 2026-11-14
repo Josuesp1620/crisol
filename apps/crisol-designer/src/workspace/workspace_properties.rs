@@ -47,15 +47,7 @@ impl DesignerWorkspace {
                     let value = self.current_text(node, key);
                     self.edit_text(key.clone(), &value, window, cx);
                 } else {
-                    let handler = self.default_handler(node, event);
-                    self.apply(
-                        &BindEventCommand {
-                            node,
-                            event: event.clone(),
-                            handler: Some(handler),
-                        },
-                        cx,
-                    );
+                    self.bind_default_handler(node, event, cx);
                 }
             }
             _ => {
@@ -64,6 +56,24 @@ impl DesignerWorkspace {
             }
         }
         cx.notify();
+    }
+
+    /// Connects `event` to the method name Crisol suggests for it.
+    pub(super) fn bind_default_handler(
+        &mut self,
+        node: NodeId,
+        event: &str,
+        cx: &mut Context<Self>,
+    ) {
+        let handler = self.default_handler(node, event);
+        self.apply(
+            &BindEventCommand {
+                node,
+                event: event.to_owned(),
+                handler: Some(handler),
+            },
+            cx,
+        );
     }
 
     pub fn cancel_edit(&mut self, cx: &mut Context<Self>) {

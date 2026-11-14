@@ -36,16 +36,30 @@ impl DesignerWorkspace {
     ) {
         self.open_menu = None;
         match command {
+            MenuCommand::NewProject => self.open_new_project(window, cx),
+            MenuCommand::AddForm => self.add_form(cx),
+            MenuCommand::SaveAll => self.save_all(window, cx),
+            MenuCommand::ViewCode => self.view_code(None, cx),
+            MenuCommand::ViewDesigner => self.view_designer(cx),
+            MenuCommand::BuildProject => self.build_project(cx),
+            MenuCommand::RunProject => self.run_project(cx),
             MenuCommand::NewForm => self.new_form(window, cx),
             MenuCommand::OpenForm => self.open_form(window, cx),
             MenuCommand::SaveForm => self.save_form(window, cx),
             MenuCommand::SaveFormAs => self.save_form_as(window, cx),
+            MenuCommand::CloseTab => self.close_tab(self.active, window, cx),
             MenuCommand::GenerateCode => self.generate_code(cx),
             MenuCommand::Quit => cx.quit(),
             MenuCommand::Undo => self.undo(cx),
             MenuCommand::Redo => self.redo(cx),
+            MenuCommand::Copy => self.copy_selection(cx),
+            MenuCommand::Paste => self.paste_clipboard(cx),
+            MenuCommand::Duplicate => self.duplicate_selection(cx),
             MenuCommand::Delete => self.delete_selection(cx),
+            MenuCommand::SelectParent => self.select_parent(cx),
             MenuCommand::ToggleTheme => self.toggle_theme(cx),
+            MenuCommand::ShowStart => self.show_start_page(cx),
+            MenuCommand::Arrange(alignment) => self.arrange_selection(alignment, cx),
             MenuCommand::RunPreview => self.run_preview(cx),
             MenuCommand::About => {
                 self.output.info(format!(
@@ -55,7 +69,7 @@ impl DesignerWorkspace {
                     DesignerTexts::GPUI_REVISION,
                     DesignerTexts::RENDERER
                 ));
-                self.bottom_tab = super::BottomTab::Output;
+                self.show_bottom_tab(super::BottomTab::Output, cx);
             }
         }
         cx.notify();
