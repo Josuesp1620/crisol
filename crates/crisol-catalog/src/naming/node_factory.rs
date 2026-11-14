@@ -26,7 +26,13 @@ impl<'context> NodeFactory<'context> {
         Node::new(WidgetKind::new(schema.kind), name, placement)
     }
 
-    fn placement_for(&self, schema: &WidgetSchema, parent: NodeId, drop_point: Point) -> Placement {
+    /// How a control of `schema` is placed when it lands in `parent` at `drop_point`.
+    pub fn placement_for(
+        &self,
+        schema: &WidgetSchema,
+        parent: NodeId,
+        drop_point: Point,
+    ) -> Placement {
         match self.container_rule_of(parent) {
             ContainerRule::Absolute => Placement::Absolute {
                 rect: Rect::new(
