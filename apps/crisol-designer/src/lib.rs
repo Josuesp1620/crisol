@@ -3,9 +3,11 @@
 pub mod actions;
 pub mod canvas;
 pub mod chrome;
+pub mod code;
 pub mod designer_application;
 pub mod designer_settings;
 pub mod designer_texts;
 pub mod panels;
+pub mod project;
 pub mod session;
 pub mod workspace;
