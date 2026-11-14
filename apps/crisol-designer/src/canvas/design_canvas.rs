@@ -26,7 +26,7 @@ impl<'workspace> DesignCanvas<'workspace> {
         let theme = Theme::of(cx).clone();
         let settings = *self.workspace.settings();
         let recorder = self.workspace.session().recorder().clone();
-        recorder.clear();
+        recorder.begin_frame();
         let frame = self.form_frame(&recorder, cx);
         let dots = DotGrid::new(settings.canvas_dot_spacing, theme.colors.canvas_dot);
         let overlay = self.overlay(&theme);

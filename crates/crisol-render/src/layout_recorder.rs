@@ -6,19 +6,30 @@ use crisol_model::geometry::Rect;
 use crisol_model::identity::NodeId;
 use gpui::{AnyElement, Bounds, IntoElement, ParentElement, Pixels, Styled, canvas, div};
 
-/// Collects where each control was drawn during a frame, shared with the editor.
+/// Collects where each control was drawn during a frame, shared with the editor. While a
+/// new frame is being laid out, readers get the last complete one.
 #[derive(Clone, Default)]
 pub struct LayoutRecorder {
     snapshot: Rc<RefCell<LayoutSnapshot>>,
+    last_complete: Rc<RefCell<LayoutSnapshot>>,
 }
 
 impl LayoutRecorder {
-    pub fn clear(&self) {
-        self.snapshot.borrow_mut().clear();
+    /// Starts recording a new frame, keeping the previous one for readers meanwhile.
+    pub fn begin_frame(&self) {
+        let finished = std::mem::take(&mut *self.snapshot.borrow_mut());
+        if !finished.paint_order().is_empty() {
+            *self.last_complete.borrow_mut() = finished;
+        }
     }
 
     pub fn snapshot(&self) -> LayoutSnapshot {
-        self.snapshot.borrow().clone()
+        let current = self.snapshot.borrow();
+        if current.paint_order().is_empty() {
+            self.last_complete.borrow().clone()
+        } else {
+            current.clone()
+        }
     }
 
     /// Wraps `element` so its bounds are recorded for `node` when it is laid out.
