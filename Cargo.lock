@@ -22,6 +22,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "crisol-codegen"
+version = "0.1.0"
+dependencies = [
+ "crisol-catalog",
+ "crisol-model",
+ "thiserror",
+]
+
+[[package]]
 name = "crisol-commands"
 version = "0.1.0"
 dependencies = [

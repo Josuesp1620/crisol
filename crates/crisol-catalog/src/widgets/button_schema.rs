@@ -54,10 +54,11 @@ impl ButtonSchema {
             default_size: Size::new(100, 32),
             desktop_only: false,
             properties,
-            events: vec![
-                EventSchema::new("click", "Click", "Raised when the user clicks the button."),
-                CommonProperties::focus_gained_event(),
-            ],
+            events: vec![EventSchema::new(
+                "click",
+                "Click",
+                "Raised when the user clicks the button.",
+            )],
             default_event: Some("click"),
         }
     }

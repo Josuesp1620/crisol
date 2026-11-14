@@ -46,11 +46,11 @@ impl RadioButtonSchema {
             desktop_only: false,
             properties,
             events: vec![EventSchema::new(
-                "changed",
-                "Changed",
+                "checked",
+                "Checked",
                 "Raised when the user chooses this option.",
             )],
-            default_event: Some("changed"),
+            default_event: Some("checked"),
         }
     }
 }
