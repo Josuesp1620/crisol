@@ -1,4 +1,4 @@
-use crisol_catalog::schema::WidgetSchema;
+use crate::schema::WidgetSchema;
 use crisol_model::document::Node;
 use crisol_model::properties::PropertyValue;
 

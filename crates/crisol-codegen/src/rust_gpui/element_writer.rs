@@ -4,9 +4,9 @@ use crisol_model::identity::NodeId;
 use crisol_model::layout::{Edge, Placement, SizeMode};
 
 use super::generation_context::GenerationContext;
-use super::property_reader::PropertyReader;
 use super::stateful_kind::StatefulKind;
 use crate::writing::{CodeWriter, NameConverter, RustLiteral};
+use crisol_catalog::PropertyReader;
 
 /// Writes the element tree returned by `render`, one builder expression per control.
 pub struct ElementWriter<'context> {

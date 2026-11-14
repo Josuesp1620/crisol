@@ -6,7 +6,6 @@ mod event_binding;
 mod event_binding_collector;
 mod events_trait_writer;
 mod generation_context;
-mod property_reader;
 mod rust_gpui_generator;
 mod stateful_kind;
 

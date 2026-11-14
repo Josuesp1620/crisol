@@ -2,9 +2,9 @@ use crisol_model::document::{DocumentWalker, Node};
 use crisol_model::identity::NodeId;
 
 use super::generation_context::GenerationContext;
-use super::property_reader::PropertyReader;
 use super::stateful_kind::StatefulKind;
 use crate::writing::{CodeWriter, NameConverter, RustLiteral};
+use crisol_catalog::PropertyReader;
 
 /// Writes the form struct, its stateful controls and the constructor that creates them
 /// and connects their events.
