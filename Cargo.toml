@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "crates/crisol-model",
     "crates/crisol-catalog",
+    "crates/crisol-commands",
 ]
 
 [workspace.package]
