@@ -2,6 +2,6 @@
 //! the `*_events.rs` files are ours. Generated files keep the generator's layout.
 
 #[rustfmt::skip]
-#[path = "customer_form.generated.rs"]
-pub mod customer_form;
-mod customer_form_events;
+#[path = "customer.generated.rs"]
+pub mod customer;
+mod customer_events;

@@ -16,13 +16,16 @@ impl GenerateCommand {
     pub fn run(form: &Path, output: &Path) -> Result<(), CliError> {
         let document = DocumentLoader::load(form)?;
         let catalog = WidgetCatalog::standard();
-        let generated =
-            RustGpuiGenerator::new(&catalog, CodegenSettings::default()).generate(&document)?;
+        let module = Self::module_of(form);
+        let generator = RustGpuiGenerator::new(&catalog, CodegenSettings::default());
+        let mut generated = generator.generate(&document)?;
+        generated.file_name = generator.file_name_for(&module);
         Self::write(&output.join(&generated.file_name), &generated.content)?;
 
         let bindings = EventBindingCollector::new(&document, &catalog).collect();
         let handlers = EventBindingCollector::unique_handlers(&bindings);
-        let stubs = HandlerStubWriter::new(&document, CodegenSettings::default());
+        let stubs =
+            HandlerStubWriter::new(&document, CodegenSettings::default()).with_module(&module);
         let handlers_path = output.join(stubs.file_name());
         let handlers_text = if handlers_path.exists() {
             let existing = fs::read_to_string(&handlers_path).map_err(|source| CliError::File {
@@ -36,6 +39,13 @@ impl GenerateCommand {
         Self::write(&handlers_path, &handlers_text)?;
         println!("Wrote {} and {}", generated.file_name, stubs.file_name());
         Ok(())
+    }
+
+    /// Modules are named after the form file: `customer.crisol` gives `customer`.
+    fn module_of(form: &Path) -> String {
+        form.file_stem()
+            .map(|stem| stem.to_string_lossy().replace('-', "_"))
+            .unwrap_or_default()
     }
 
     fn write(path: &Path, content: &str) -> Result<(), CliError> {

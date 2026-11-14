@@ -1,6 +1,6 @@
 use gpui::{Context, Window};
 
-use super::customer_form::{CustomerForm, CustomerFormEvents};
+use super::customer::{CustomerForm, CustomerFormEvents};
 
 impl CustomerFormEvents for CustomerForm {
     fn kind_changed(&mut self, _window: &mut Window, cx: &mut Context<Self>) {

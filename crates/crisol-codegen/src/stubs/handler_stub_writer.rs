@@ -8,25 +8,35 @@ use crate::{CodegenError, CodegenResult, CodegenSettings};
 pub struct HandlerStubWriter<'document> {
     document: &'document FormDocument,
     settings: CodegenSettings,
+    module: String,
 }
 
 impl<'document> HandlerStubWriter<'document> {
+    /// Writes for the module named after the form type (`CustomerForm` gives `customer_form`).
     pub fn new(document: &'document FormDocument, settings: CodegenSettings) -> Self {
-        Self { document, settings }
+        let module = NameConverter::snake_case(document.form().name.as_str());
+        Self {
+            document,
+            settings,
+            module,
+        }
     }
 
-    /// `customer_form_events.rs`.
+    /// Writes for the module named after the form file (`customer.crisol` gives `customer`).
+    pub fn with_module(mut self, module: &str) -> Self {
+        module.clone_into(&mut self.module);
+        self
+    }
+
+    /// `customer_events.rs`.
     pub fn file_name(&self) -> String {
-        format!(
-            "{}_events.rs",
-            NameConverter::snake_case(self.document.form().name.as_str())
-        )
+        format!("{}_events.rs", self.module)
     }
 
     /// A new handlers file with an empty method for every handler.
     pub fn create(&self, handlers: &[String]) -> String {
         let form = self.document.form().name.as_str();
-        let module = NameConverter::snake_case(form);
+        let module = &self.module;
         let mut text = String::new();
         text.push_str("use gpui::{Context, Window};\n\n");
         text.push_str(&format!(

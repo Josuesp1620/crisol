@@ -21,6 +21,11 @@ impl<'catalog> RustGpuiGenerator<'catalog> {
         Self { catalog, settings }
     }
 
+    /// `<module>.generated.rs`, for the module named after the form file.
+    pub fn file_name_for(&self, module: &str) -> String {
+        format!("{module}{}", self.settings.generated_suffix)
+    }
+
     pub fn file_name(&self, document: &FormDocument) -> String {
         format!(
             "{}{}",

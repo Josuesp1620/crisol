@@ -1,7 +1,7 @@
 use crisol_ui::prelude::*;
 use gpui::{App, AppContext, Bounds, TitlebarOptions, WindowBounds, WindowOptions, px, size};
 
-use crate::forms::customer_form::CustomerForm;
+use crate::forms::customer::CustomerForm;
 
 /// Opens the customer form in its own window, at its designed size.
 pub struct CustomerWindow;
