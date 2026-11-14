@@ -4,6 +4,7 @@ members = [
     "crates/crisol-model",
     "crates/crisol-catalog",
     "crates/crisol-commands",
+    "crates/crisol-engine",
 ]
 
 [workspace.package]

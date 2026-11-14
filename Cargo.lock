@@ -30,6 +30,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "crisol-engine"
+version = "0.1.0"
+dependencies = [
+ "crisol-catalog",
+ "crisol-commands",
+ "crisol-model",
+]
+
+[[package]]
 name = "crisol-model"
 version = "0.1.0"
 dependencies = [

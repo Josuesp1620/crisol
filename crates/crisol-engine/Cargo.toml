@@ -1,0 +1,16 @@
+[package]
+name = "crisol-engine"
+description = "Designer logic without a user interface: selection, hit testing, dragging and snapping."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+crisol-model.workspace = true
+crisol-catalog.workspace = true
+crisol-commands.workspace = true
+
+[lints]
+workspace = true
