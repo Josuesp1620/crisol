@@ -7,6 +7,29 @@ framework behind the Zed editor.
 
 > Status: early development (0.1). Windows is the first platform.
 
+![Crisol designer](docs/screenshots/designer-light.png)
+
+## Download
+
+Windows builds are attached to each [release](https://github.com/Josuesp1620/crisol/releases):
+unzip `crisol-vX.Y.Z-windows-x64.zip` and run `crisol.exe`. The zip also holds
+`crisol-cli.exe` and `customer-form.exe`, the example form built from generated code.
+
+## The designer
+
+- **Toolbox**: drag a control onto the form, or double-click it to add it to the selected
+  container.
+- **Canvas**: click to select (Ctrl+click adds to the selection), drag to move or reorder,
+  drag the handles to resize; guides show what the control aligns with.
+- **Properties**: values that differ from the default are bold and are the only ones saved.
+  The lightning button lists events; clicking an empty one connects it to a method.
+- **Error list, Output, History**: validation (including portability and accessibility
+  warnings), what the designer did, and every undoable step.
+- **Run (F5)** opens the form with working controls; **Generate code (Ctrl+Shift+B)** writes
+  the Rust files next to the `.crisol` file.
+
+Shortcuts: Ctrl+N new, Ctrl+O open, Ctrl+S save, Ctrl+Z undo, Ctrl+Y redo, Del delete.
+
 ## How it works
 
 - A form is a `.crisol` file: the single source of truth, stored as canonical JSON so Git
@@ -46,6 +69,14 @@ make images         # build the Docker images
 make test           # tests of the crates without a user interface
 make lint           # formatting and clippy
 make windows-build  # crisol.exe for Windows (debug, cross-compiled)
+make screenshots    # render the designer to target/screenshots/ without a screen
+```
+
+The command line works on any form:
+
+```bash
+crisol-cli check examples/customer/customer.crisol
+crisol-cli generate examples/customer/customer.crisol --out examples/customer/src/forms
 ```
 
 Windows release builds are produced by GitHub Actions when a `vX.Y.Z` tag is pushed.
