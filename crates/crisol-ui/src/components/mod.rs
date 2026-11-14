@@ -1,5 +1,6 @@
 //! The controls of a form.
 
+pub mod appearance;
 mod button;
 mod button_variant;
 mod check_box;

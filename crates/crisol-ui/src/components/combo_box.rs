@@ -4,8 +4,8 @@ use gpui::{
     prelude::FluentBuilder, px,
 };
 
+use super::appearance::ComboBoxAppearance;
 use super::{ComboBoxEvent, FocusTracker};
-use crate::icon::{Icon, IconName};
 use crate::theme::Theme;
 
 /// A drop-down list to pick one option.
@@ -140,18 +140,13 @@ impl Render for ComboBox {
                 cx.emit(ComboBoxEvent::FocusLost);
             },
         );
-        let theme = Theme::of(cx);
-        let (text, text_color) = match self.selected_text() {
-            Some(selected) => (SharedString::from(selected.to_owned()), theme.colors.ink),
-            None => (self.placeholder.clone(), theme.colors.muted),
-        };
-        let focused = self.focus_handle.is_focused(window);
-        let border = if focused || self.open {
-            theme.colors.selection
-        } else {
-            theme.colors.line
-        };
-        let muted = theme.colors.muted;
+        let text = self
+            .selected_text()
+            .map(|selected| SharedString::from(selected.to_owned()));
+        let highlighted = self.open || self.focus_handle.is_focused(window);
+        let appearance = ComboBoxAppearance::new(text, self.placeholder.clone())
+            .highlighted(highlighted)
+            .disabled(self.disabled);
         div()
             .relative()
             .w_full()
@@ -160,22 +155,9 @@ impl Render for ComboBox {
                 div()
                     .id("combo-box")
                     .track_focus(&self.focus_handle)
-                    .flex()
-                    .items_center()
-                    .justify_between()
-                    .gap(px(6.))
-                    .h(theme.metrics.control_height)
-                    .px(theme.metrics.control_padding)
-                    .rounded(theme.metrics.control_radius)
-                    .border_1()
-                    .border_color(border)
-                    .bg(theme.colors.background)
-                    .text_color(text_color)
-                    .when(self.disabled, |trigger| trigger.opacity(0.5))
                     .when(!self.disabled, Styled::cursor_pointer)
                     .on_click(cx.listener(|combo, _, window, cx| combo.toggle(window, cx)))
-                    .child(div().truncate().child(text))
-                    .child(Icon::new(IconName::Down).color(muted)),
+                    .child(appearance),
             )
             .when(self.open, |container| container.child(self.render_list(cx)))
     }
