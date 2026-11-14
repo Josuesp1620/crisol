@@ -75,7 +75,7 @@ fn containers_write_their_layout() {
     assert!(content.contains(".fill()"));
     assert!(content.contains("Grid::new(2)"));
     assert!(content.contains(".first_column_width(104.0)"));
-    assert!(content.contains(".cell(0, 1, 1, Length::Fill,"));
+    assert!(content.contains(".cell(0, 1, 1, Length::Fill,\n"));
     assert!(content.contains("Stack::horizontal()"));
     assert!(content.contains(".align(StackAlignment::End)"));
 }

@@ -157,7 +157,7 @@ impl<'context> ElementWriter<'context> {
             {
                 continue;
             }
-            writer.line(&format!(".{}(", Self::slot_call(&child.placement)));
+            writer.line(&format!(".{}", Self::slot_call(&child.placement)));
             writer.indent();
             self.write_element(*child_id, writer);
             writer.dedent();
@@ -172,23 +172,23 @@ impl<'context> ElementWriter<'context> {
             Placement::Flow {
                 width: SizeMode::Hug,
                 height: SizeMode::Hug,
-            } => "child".to_owned(),
+            } => "child(".to_owned(),
             Placement::Flow { width, height } => {
                 format!(
-                    "child_sized({}, {}, ",
+                    "child_sized({}, {},",
                     Self::length(*width),
                     Self::length(*height)
                 )
             }
             Placement::Cell { cell, width } => format!(
-                "cell({}, {}, {}, {}, ",
+                "cell({}, {}, {}, {},",
                 cell.row,
                 cell.column,
                 cell.column_span,
                 Self::length(*width)
             ),
             Placement::Absolute { rect, anchor } => format!(
-                "place({}, {}, {}, {}, Anchors::new({}, {}, {}, {}), ",
+                "place({}, {}, {}, {}, Anchors::new({}, {}, {}, {}),",
                 RustLiteral::pixels(i64::from(rect.left())),
                 RustLiteral::pixels(i64::from(rect.top())),
                 RustLiteral::pixels(i64::from(rect.size.width)),
