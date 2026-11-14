@@ -1,0 +1,26 @@
+[package]
+name = "crisol-designer"
+description = "Crisol, the visual form designer for Rust."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "crisol"
+path = "src/main.rs"
+
+[dependencies]
+crisol-model.workspace = true
+crisol-catalog.workspace = true
+crisol-commands.workspace = true
+crisol-engine.workspace = true
+crisol-codegen.workspace = true
+crisol-ui.workspace = true
+crisol-render.workspace = true
+gpui.workspace = true
+gpui_platform.workspace = true
+
+[lints]
+workspace = true
