@@ -1,0 +1,96 @@
+use gpui::{Hsla, rgb};
+
+/// Every color of the interface, by role.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ThemeColors {
+    pub background: Hsla,
+    pub surface: Hsla,
+    pub sunken: Hsla,
+    pub chrome: Hsla,
+    pub ink: Hsla,
+    pub muted: Hsla,
+    pub line: Hsla,
+    pub accent: Hsla,
+    pub accent_ink: Hsla,
+    pub accent_soft: Hsla,
+    pub on_accent: Hsla,
+    pub selection: Hsla,
+    pub selection_soft: Hsla,
+    pub success: Hsla,
+    pub success_soft: Hsla,
+    pub warning: Hsla,
+    pub warning_soft: Hsla,
+    pub danger: Hsla,
+    pub danger_soft: Hsla,
+    pub code_background: Hsla,
+    pub code_ink: Hsla,
+    pub code_dim: Hsla,
+    pub code_keyword: Hsla,
+    pub code_string: Hsla,
+    pub canvas_dot: Hsla,
+    pub shadow: Hsla,
+}
+
+impl ThemeColors {
+    pub fn light() -> Self {
+        Self {
+            background: rgb(0x00F5_F6F8).into(),
+            surface: rgb(0x00FF_FFFF).into(),
+            sunken: rgb(0x00EC_EEF2).into(),
+            chrome: rgb(0x00E6_E9EE).into(),
+            ink: rgb(0x0016_1A21).into(),
+            muted: rgb(0x005A_6271).into(),
+            line: rgb(0x00DC_E0E7).into(),
+            accent: rgb(0x00B0_502A).into(),
+            accent_ink: rgb(0x008E_3C1C).into(),
+            accent_soft: rgb(0x00F7_E7DE).into(),
+            on_accent: rgb(0x00FF_FFFF).into(),
+            selection: rgb(0x002E_6BE6).into(),
+            selection_soft: rgb(0x00E3_ECFD).into(),
+            success: rgb(0x001E_8653).into(),
+            success_soft: rgb(0x00E1_F3E9).into(),
+            warning: rgb(0x00A8_6B12).into(),
+            warning_soft: rgb(0x00FB_F0DC).into(),
+            danger: rgb(0x00B4_362F).into(),
+            danger_soft: rgb(0x00FB_E4E2).into(),
+            code_background: rgb(0x00EE_F0F4).into(),
+            code_ink: rgb(0x001D_2330).into(),
+            code_dim: rgb(0x006B_7486).into(),
+            code_keyword: rgb(0x00A2_401C).into(),
+            code_string: rgb(0x001E_7A4C).into(),
+            canvas_dot: rgb(0x00C9_CED8).into(),
+            shadow: gpui::hsla(0.6, 0.4, 0.06, 0.28),
+        }
+    }
+
+    pub fn dark() -> Self {
+        Self {
+            background: rgb(0x000E_1116).into(),
+            surface: rgb(0x0016_1A21).into(),
+            sunken: rgb(0x001C_212A).into(),
+            chrome: rgb(0x001F_242D).into(),
+            ink: rgb(0x00E6_E9EE).into(),
+            muted: rgb(0x0098_A1B0).into(),
+            line: rgb(0x0029_303B).into(),
+            accent: rgb(0x00E2_7D4E).into(),
+            accent_ink: rgb(0x00F0_A07A).into(),
+            accent_soft: rgb(0x0036_221A).into(),
+            on_accent: rgb(0x00FF_FFFF).into(),
+            selection: rgb(0x005C_8DFF).into(),
+            selection_soft: rgb(0x001B_2740).into(),
+            success: rgb(0x004C_C387).into(),
+            success_soft: rgb(0x0014_291E).into(),
+            warning: rgb(0x00E3_A84A).into(),
+            warning_soft: rgb(0x002E_2414).into(),
+            danger: rgb(0x00F0_716A).into(),
+            danger_soft: rgb(0x0033_191A).into(),
+            code_background: rgb(0x0012_161D).into(),
+            code_ink: rgb(0x00DC_E1E9).into(),
+            code_dim: rgb(0x007D_8798).into(),
+            code_keyword: rgb(0x00F0_8F63).into(),
+            code_string: rgb(0x006F_D3A0).into(),
+            canvas_dot: rgb(0x002C_3340).into(),
+            shadow: gpui::hsla(0.0, 0.0, 0.0, 0.5),
+        }
+    }
+}
