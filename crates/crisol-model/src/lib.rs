@@ -9,6 +9,7 @@ pub mod format_settings;
 pub mod geometry;
 pub mod identity;
 pub mod layout;
+pub mod project;
 pub mod properties;
 
 pub use error::{ModelError, ModelResult};
