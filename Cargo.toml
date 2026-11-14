@@ -6,7 +6,9 @@ members = [
     "crates/crisol-commands",
     "crates/crisol-engine",
     "crates/crisol-codegen",
+    "crates/crisol-ui",
     "apps/crisol-cli",
+    "examples/customer",
 ]
 
 [workspace.package]
@@ -28,6 +30,7 @@ crisol-render = { path = "crates/crisol-render" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
+unicode-segmentation = "1.12"
 uuid = { version = "1.11", features = ["v4", "serde"] }
 # GPUI is pinned to one Zed revision: crates.io only has a release a year behind main.
 gpui = { git = "https://github.com/zed-industries/zed", rev = "56a157e5b01b62afd5c50a014ed15b379de8dfd6" }
@@ -43,6 +46,8 @@ must_use_candidate = "allow"
 return_self_not_must_use = "allow"
 # Generators build text with format!; write! would only add error handling noise.
 format_push_string = "allow"
+# Files are named after the type they hold, so `theme/theme.rs` holds `Theme`.
+module_inception = "allow"
 # Every fallible function returns the single error type of its crate, documented there.
 missing_errors_doc = "allow"
 

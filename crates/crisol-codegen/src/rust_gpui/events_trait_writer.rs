@@ -20,7 +20,7 @@ impl<'context> EventsTraitWriter<'context> {
         writer.line(&format!(
             "/// The events of `{form}`, implemented in your own file."
         ));
-        writer.block(&format!("pub trait {form}Events {{"), "}", |body| {
+        writer.block(&format!("pub trait {form}Events: Sized {{"), "}", |body| {
             for handler in EventBindingCollector::unique_handlers(self.bindings) {
                 body.line(&format!("/// {}.", self.sources_of(&handler)));
                 body.line(&format!(

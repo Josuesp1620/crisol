@@ -23,7 +23,7 @@ fn the_file_is_named_after_the_form() {
 #[test]
 fn the_events_trait_has_one_method_per_handler() {
     let content = generate(&CustomerForm::build());
-    assert!(content.contains("pub trait CustomerFormEvents {"));
+    assert!(content.contains("pub trait CustomerFormEvents: Sized {"));
     assert!(content.contains("/// `btn_save`: Click."));
     assert!(content.contains("fn save(&mut self, window: &mut Window, cx: &mut Context<Self>);"));
     assert!(
