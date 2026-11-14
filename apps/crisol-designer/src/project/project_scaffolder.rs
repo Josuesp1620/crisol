@@ -90,7 +90,8 @@ impl<'catalog> ProjectScaffolder<'catalog> {
         let zed = Self::ZED_REPOSITORY;
         let revision = Self::GPUI_REVISION;
         format!(
-            "[package]\nname = \"{crate_name}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\n\
+            "[package]\nname = \"{crate_name}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n\
+             # A project of its own, even when created inside another Cargo workspace.\n[workspace]\n\n[dependencies]\n\
              crisol-ui = {{ git = \"{repository}\", tag = \"v{version}\" }}\n\
              gpui = {{ git = \"{zed}\", rev = \"{revision}\" }}\n\
              gpui_platform = {{ git = \"{zed}\", rev = \"{revision}\", features = [\"x11\", \"wayland\"] }}\n\n\
