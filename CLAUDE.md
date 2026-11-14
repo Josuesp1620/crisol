@@ -36,7 +36,7 @@ live in the crates without UI; the interface draws what they decide.
 - Modules are folders with a `mod.rs` that only declares and re-exports.
 - Comments only when the reason is not obvious from the code. `///` on public types,
   short. No commented-out code, no restating what the code says.
-- Code, comments and commit messages in English. Visible texts in Spanish.
+- Everything in English: code, names, examples, comments, commit messages and visible texts.
 - Every rule comes with a test in the crate's `tests/` folder, one file per feature.
 - Never copy code from other projects. Slint, FigCraft and others are references for ideas only.
 - Vet every new dependency (age, downloads, maintainers, advisories) before adding it.

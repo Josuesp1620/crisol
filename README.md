@@ -16,8 +16,8 @@ framework behind the Zed editor.
   per event. You implement that trait in your own file, which Crisol never rewrites.
 
 ```rust
-impl ClienteFormEvents for ClienteForm {
-    fn guardar(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+impl CustomerFormEvents for CustomerForm {
+    fn save(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         // your code
     }
 }
