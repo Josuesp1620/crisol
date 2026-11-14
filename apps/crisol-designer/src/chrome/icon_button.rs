@@ -1,11 +1,11 @@
 use crisol_ui::icon::{Icon, IconName};
 use crisol_ui::theme::Theme;
 use gpui::{
-    App, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce,
+    App, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString,
     StatefulInteractiveElement, Styled, Window, div, prelude::FluentBuilder, px,
 };
 
-use super::ClickHandler;
+use super::{ClickHandler, TooltipView};
 
 /// A square button showing one icon, used in tool bars and pane headers.
 #[derive(IntoElement)]
@@ -14,6 +14,7 @@ pub struct IconButton {
     icon: IconName,
     active: bool,
     dimmed: bool,
+    tooltip: Option<SharedString>,
     on_click: Option<ClickHandler>,
 }
 
@@ -24,6 +25,7 @@ impl IconButton {
             icon,
             active: false,
             dimmed: false,
+            tooltip: None,
             on_click: None,
         }
     }
@@ -36,6 +38,12 @@ impl IconButton {
     /// Shown but not available, like alignment with a single control selected.
     pub fn dimmed(mut self, dimmed: bool) -> Self {
         self.dimmed = dimmed;
+        self
+    }
+
+    /// What the button does, shown when the pointer rests on it.
+    pub fn tooltip(mut self, text: impl Into<SharedString>) -> Self {
+        self.tooltip = Some(text.into());
         self
     }
 
@@ -68,10 +76,12 @@ impl RenderOnce for IconButton {
             .when(!dimmed && !self.active, |button| {
                 button.hover(move |style| style.bg(hover))
             })
+            .when(!dimmed, Styled::cursor_pointer)
+            .when_some(self.tooltip, |button, text| {
+                button.tooltip(TooltipView::builder(text))
+            })
             .when_some(self.on_click.filter(|_| !dimmed), |button, handler| {
-                button
-                    .cursor_pointer()
-                    .on_click(move |event, window, cx| handler(event, window, cx))
+                button.on_click(move |event, window, cx| handler(event, window, cx))
             })
             .child(Icon::new(self.icon).color(color))
     }

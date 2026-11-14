@@ -9,6 +9,7 @@ mod search_field;
 mod segment;
 mod segmented_control;
 mod tool_bar_separator;
+mod tooltip_view;
 mod tree_row;
 
 pub use click_handler::ClickHandler;
@@ -20,4 +21,5 @@ pub use search_field::SearchField;
 pub use segment::Segment;
 pub use segmented_control::SegmentedControl;
 pub use tool_bar_separator::ToolBarSeparator;
+pub use tooltip_view::TooltipView;
 pub use tree_row::TreeRow;

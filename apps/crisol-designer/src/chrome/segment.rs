@@ -6,4 +6,6 @@ pub struct Segment {
     pub icon: IconName,
     pub label: SharedString,
     pub active: bool,
+    /// False for options of a later phase: shown dimmed and not clickable.
+    pub available: bool,
 }

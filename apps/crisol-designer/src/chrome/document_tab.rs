@@ -16,6 +16,7 @@ pub struct DocumentTab {
     active: bool,
     dirty: bool,
     on_click: Option<ClickHandler>,
+    on_close: Option<ClickHandler>,
 }
 
 impl DocumentTab {
@@ -27,6 +28,7 @@ impl DocumentTab {
             active: false,
             dirty: false,
             on_click: None,
+            on_close: None,
         }
     }
 
@@ -42,6 +44,12 @@ impl DocumentTab {
 
     pub fn on_click(mut self, handler: ClickHandler) -> Self {
         self.on_click = Some(handler);
+        self
+    }
+
+    /// Shows a close button that runs `handler`.
+    pub fn on_close(mut self, handler: ClickHandler) -> Self {
+        self.on_close = Some(handler);
         self
     }
 }
@@ -85,6 +93,25 @@ impl RenderOnce for DocumentTab {
             .child(self.label)
             .when(self.dirty, |tab| {
                 tab.child(div().size(px(7.)).rounded_full().bg(theme.colors.accent))
+            })
+            .when_some(self.on_close, |tab, handler| {
+                let hover = theme.colors.sunken;
+                tab.child(
+                    div()
+                        .id("close")
+                        .rounded(px(3.))
+                        .cursor_pointer()
+                        .hover(move |style| style.bg(hover))
+                        .on_click(move |event, window, cx| {
+                            cx.stop_propagation();
+                            handler(event, window, cx);
+                        })
+                        .child(
+                            Icon::new(IconName::X)
+                                .size(px(12.))
+                                .color(theme.colors.muted),
+                        ),
+                )
             })
     }
 }

@@ -48,6 +48,7 @@ impl RenderOnce for SegmentedControl {
                         item.bg(theme.colors.selection_soft)
                             .font_weight(FontWeight::SEMIBOLD)
                     })
+                    .when(!segment.available, |item| item.opacity(0.45))
                     .when(position + 1 < count, |item| {
                         item.border_r_1().border_color(theme.colors.line)
                     })
