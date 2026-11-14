@@ -1,0 +1,47 @@
+use std::fs;
+use std::path::Path;
+
+use crisol_catalog::WidgetCatalog;
+use crisol_codegen::rust_gpui::{EventBindingCollector, RustGpuiGenerator};
+use crisol_codegen::stubs::HandlerStubWriter;
+use crisol_codegen::{CodeGenerator, CodegenSettings};
+
+use crate::cli_error::CliError;
+use crate::document_loader::DocumentLoader;
+
+/// Writes `<form>.generated.rs` and creates or extends `<form>_events.rs`.
+pub struct GenerateCommand;
+
+impl GenerateCommand {
+    pub fn run(form: &Path, output: &Path) -> Result<(), CliError> {
+        let document = DocumentLoader::load(form)?;
+        let catalog = WidgetCatalog::standard();
+        let generated =
+            RustGpuiGenerator::new(&catalog, CodegenSettings::default()).generate(&document)?;
+        Self::write(&output.join(&generated.file_name), &generated.content)?;
+
+        let bindings = EventBindingCollector::new(&document, &catalog).collect();
+        let handlers = EventBindingCollector::unique_handlers(&bindings);
+        let stubs = HandlerStubWriter::new(&document, CodegenSettings::default());
+        let handlers_path = output.join(stubs.file_name());
+        let handlers_text = if handlers_path.exists() {
+            let existing = fs::read_to_string(&handlers_path).map_err(|source| CliError::File {
+                path: handlers_path.display().to_string(),
+                source,
+            })?;
+            stubs.extend(&existing, &handlers)?
+        } else {
+            stubs.create(&handlers)
+        };
+        Self::write(&handlers_path, &handlers_text)?;
+        println!("Wrote {} and {}", generated.file_name, stubs.file_name());
+        Ok(())
+    }
+
+    fn write(path: &Path, content: &str) -> Result<(), CliError> {
+        fs::write(path, content).map_err(|source| CliError::File {
+            path: path.display().to_string(),
+            source,
+        })
+    }
+}

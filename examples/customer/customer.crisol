@@ -1,0 +1,265 @@
+{
+  "format": "crisol/1",
+  "form": {
+    "name": "CustomerForm",
+    "title": "New customer",
+    "size": {
+      "width": 520,
+      "height": 372
+    }
+  },
+  "root": {
+    "id": "13640db3-1314-4dd0-9b47-351fd84b6c0d",
+    "kind": "Form",
+    "name": "frm_customer",
+    "placement": {
+      "flow": {
+        "width": "hug",
+        "height": "hug"
+      }
+    },
+    "children": [
+      {
+        "id": "ef5b04af-62e4-43ed-88cc-b0c9f0848174",
+        "kind": "Grid",
+        "name": "grd_fields",
+        "properties": {
+          "first_column_width": 104
+        },
+        "placement": {
+          "flow": {
+            "width": "fill",
+            "height": "hug"
+          }
+        },
+        "children": [
+          {
+            "id": "8ab20a63-8679-4d36-85df-06cf4bc05797",
+            "kind": "Label",
+            "name": "lbl_tax_id",
+            "properties": {
+              "text": "Tax id"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 0,
+                  "column": 0
+                },
+                "width": "hug"
+              }
+            }
+          },
+          {
+            "id": "1a73a760-1d5a-43a5-83fc-b0a908169dc9",
+            "kind": "TextBox",
+            "name": "txt_tax_id",
+            "properties": {
+              "accessible_name": "Tax id",
+              "max_length": 11,
+              "placeholder": "20123456789",
+              "required": true
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 0,
+                  "column": 1
+                },
+                "width": "fill"
+              }
+            }
+          },
+          {
+            "id": "74e44907-2ad6-4bff-afb4-83ca5ca2ad0e",
+            "kind": "Label",
+            "name": "lbl_business_name",
+            "properties": {
+              "text": "Business name"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 1,
+                  "column": 0
+                },
+                "width": "hug"
+              }
+            }
+          },
+          {
+            "id": "a0f39e1c-895a-466f-8b29-6227f5e1d393",
+            "kind": "TextBox",
+            "name": "txt_business_name",
+            "properties": {
+              "accessible_name": "Business name",
+              "required": true,
+              "text": "Andean Trading Ltd."
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 1,
+                  "column": 1
+                },
+                "width": "fill"
+              }
+            }
+          },
+          {
+            "id": "5e5bae40-8632-4a7f-a058-71a9c2a0927f",
+            "kind": "Label",
+            "name": "lbl_address",
+            "properties": {
+              "text": "Address"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 2,
+                  "column": 0
+                },
+                "width": "hug"
+              }
+            }
+          },
+          {
+            "id": "652a89a8-410c-4ae8-aa8e-06b04bd730da",
+            "kind": "TextBox",
+            "name": "txt_address",
+            "properties": {
+              "accessible_name": "Address",
+              "text": "1450 Arequipa Ave, Lima"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 2,
+                  "column": 1
+                },
+                "width": "fill"
+              }
+            }
+          },
+          {
+            "id": "9d23f0f4-5135-4413-85c9-990002ad6d43",
+            "kind": "Label",
+            "name": "lbl_kind",
+            "properties": {
+              "text": "Kind"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 3,
+                  "column": 0
+                },
+                "width": "hug"
+              }
+            }
+          },
+          {
+            "id": "f4366528-5763-4b08-baa9-4390b306e967",
+            "kind": "ComboBox",
+            "name": "cmb_kind",
+            "properties": {
+              "accessible_name": "Kind",
+              "items": [
+                "Company",
+                "Person",
+                "Government"
+              ],
+              "selected": "Company"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 3,
+                  "column": 1
+                },
+                "width": {
+                  "fixed": 180
+                }
+              }
+            },
+            "events": {
+              "selection_changed": "kind_changed"
+            }
+          },
+          {
+            "id": "0c1f5e78-ee1c-46fd-bd12-f50a60b66c23",
+            "kind": "CheckBox",
+            "name": "chk_active",
+            "properties": {
+              "checked": true,
+              "text": "Active customer"
+            },
+            "placement": {
+              "cell": {
+                "cell": {
+                  "row": 4,
+                  "column": 1
+                },
+                "width": "hug"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "5c1be09a-b8dd-4d80-b536-30dfb8e86319",
+        "kind": "Stack",
+        "name": "stk_buttons",
+        "properties": {
+          "alignment": "end",
+          "direction": "horizontal"
+        },
+        "placement": {
+          "flow": {
+            "width": "fill",
+            "height": "hug"
+          }
+        },
+        "children": [
+          {
+            "id": "b5a026ca-f2cd-473f-bc9f-6dd306faf994",
+            "kind": "Button",
+            "name": "btn_cancel",
+            "properties": {
+              "is_cancel": true,
+              "text": "Cancel"
+            },
+            "placement": {
+              "flow": {
+                "width": "hug",
+                "height": "hug"
+              }
+            },
+            "events": {
+              "click": "cancel"
+            }
+          },
+          {
+            "id": "8382bdaf-a229-483a-a38f-a2da33c4fbbb",
+            "kind": "Button",
+            "name": "btn_save",
+            "properties": {
+              "is_default": true,
+              "text": "Save",
+              "variant": "primary"
+            },
+            "placement": {
+              "flow": {
+                "width": "hug",
+                "height": "hug"
+              }
+            },
+            "events": {
+              "click": "save"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

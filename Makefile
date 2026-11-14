@@ -7,11 +7,12 @@ WINDOWS_TARGET := x86_64-pc-windows-msvc
 CORE_PACKAGES := -p crisol-model -p crisol-catalog -p crisol-commands -p crisol-engine -p crisol-codegen -p crisol-cli
 BUILD_JOBS ?= 8
 
-.PHONY: help images test test-core test-all lint format windows-check windows-build run-cli version release-notes clean
+.PHONY: help images test test-core check-examples test-all lint format windows-check windows-build run-cli version release-notes clean
 
 help:
 	@echo "make images                 Build the Docker images"
 	@echo "make test                   Run the tests of the crates without a user interface"
+	@echo "make check-examples        Validate the example forms with the command line"
 	@echo "make test-all               Run every test, the GPUI crates included"
 	@echo "make lint                   Check formatting and clippy on every crate"
 	@echo "make format                 Format the Rust code"
@@ -23,10 +24,13 @@ help:
 images:
 	docker compose build
 
-test: test-core
+test: test-core check-examples
 
 test-core:
 	$(COMPOSE) core cargo test $(CORE_PACKAGES)
+
+check-examples:
+	$(COMPOSE) core cargo run -q -p crisol-cli -- check examples/customer/customer.crisol
 
 test-all:
 	$(COMPOSE) -e CARGO_BUILD_JOBS=$(BUILD_JOBS) core cargo test --workspace

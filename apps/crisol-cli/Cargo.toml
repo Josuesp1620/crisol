@@ -1,0 +1,21 @@
+[package]
+name = "crisol-cli"
+description = "Command line for Crisol projects: check documents and generate code."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "crisol-cli"
+path = "src/main.rs"
+
+[dependencies]
+crisol-model.workspace = true
+crisol-catalog.workspace = true
+crisol-codegen.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

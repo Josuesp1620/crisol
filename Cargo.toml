@@ -6,6 +6,7 @@ members = [
     "crates/crisol-commands",
     "crates/crisol-engine",
     "crates/crisol-codegen",
+    "apps/crisol-cli",
 ]
 
 [workspace.package]
