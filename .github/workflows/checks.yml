@@ -1,0 +1,31 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build the Docker images
+        run: docker compose build core
+      - name: Lint
+        run: make lint
+      - name: Test
+        run: make test-all
+
+  # GPUI's Windows backend and its shaders are checked natively on Windows.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@1.98.1
+        with:
+          components: clippy
+      - name: Lint
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --workspace

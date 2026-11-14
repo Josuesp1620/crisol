@@ -1,0 +1,40 @@
+name: Release
+
+# Pushing a tag vX.Y.Z builds Crisol for Windows and publishes it as a GitHub release.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@1.98.1
+      - name: Build
+        run: cargo build --release -p crisol-designer -p crisol-cli -p crisol-example-customer
+      - name: Package
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $folder = "crisol-$version-windows-x64"
+          New-Item -ItemType Directory -Path $folder | Out-Null
+          Copy-Item target/release/crisol.exe, target/release/crisol-cli.exe, target/release/customer-form.exe, README.md, LICENSE, CHANGELOG.md -Destination $folder
+          Compress-Archive -Path $folder -DestinationPath "$folder.zip"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: crisol-windows-x64
+          path: crisol-*-windows-x64.zip
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $prerelease = if ($version -match "-") { "--prerelease" } else { "" }
+          gh release create $version "crisol-$version-windows-x64.zip" --title "Crisol $version" --notes-file CHANGELOG.md $prerelease
