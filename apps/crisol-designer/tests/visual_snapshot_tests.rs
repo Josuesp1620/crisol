@@ -43,7 +43,11 @@ impl DesignerSnapshot {
             let workspace = window.root(&mut cx).expect("the workspace is the root");
             cx.update(|cx| {
                 workspace.update(cx, |workspace, cx| {
-                    let node = workspace.session().document().find_by_name(name).expect("the control exists");
+                    let node = workspace
+                        .session()
+                        .document()
+                        .find_by_name(name)
+                        .expect("the control exists");
                     workspace.select(node, false, cx);
                 });
             });
@@ -77,5 +81,12 @@ fn the_designer_renders_in_dark_mode() {
 #[test]
 #[ignore = "needs a GPU or a software Vulkan driver; run with make screenshots"]
 fn a_selected_control_shows_its_handles_and_properties() {
-    assert!(DesignerSnapshot::capture_with(ThemeMode::Light, "designer-selection.png", Some("cmb_kind")).exists());
+    assert!(
+        DesignerSnapshot::capture_with(
+            ThemeMode::Light,
+            "designer-selection.png",
+            Some("cmb_kind")
+        )
+        .exists()
+    );
 }
